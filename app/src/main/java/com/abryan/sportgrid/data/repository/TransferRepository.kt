@@ -58,8 +58,9 @@ class TransferRepository {
     suspend fun searchTeams(query: String): Result<List<ClubOption>> = withContext(Dispatchers.IO) {
         try {
             val response = ApiClientFactory.getFootballApi().getTeams(search = query)
-            val clubs = response.response.map {
-                ClubOption(id = it.id ?: 0, name = it.name ?: "Unknown", logo = it.logo)
+            val clubs = response.response.mapNotNull { item ->
+                val t = item.team ?: return@mapNotNull null
+                ClubOption(id = t.id ?: 0, name = t.name ?: "Unknown", logo = t.logo)
             }
             Result.success(clubs)
         } catch (e: Exception) {

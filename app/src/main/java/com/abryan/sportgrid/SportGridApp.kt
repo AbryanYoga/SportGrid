@@ -1,6 +1,7 @@
 package com.abryan.sportgrid
 
 import android.app.Application
+import com.abryan.sportgrid.data.repository.ClubRepository
 import com.abryan.sportgrid.data.repository.LeagueRepository
 import com.abryan.sportgrid.data.repository.MatchRepository
 import com.abryan.sportgrid.data.repository.PersonRepository
@@ -11,6 +12,7 @@ class AppContainer {
     val matchRepository by lazy { MatchRepository() }
     val transferRepository by lazy { TransferRepository() }
     val personRepository by lazy { PersonRepository() }
+    val clubRepository by lazy { ClubRepository() }
 }
 
 class SportGridApp : Application() {

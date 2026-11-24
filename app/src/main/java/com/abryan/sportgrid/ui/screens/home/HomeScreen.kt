@@ -1,9 +1,22 @@
 package com.abryan.sportgrid.ui.screens.home
 
 import android.app.Application
+import android.content.res.Configuration
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +35,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -35,13 +48,20 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,8 +72,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.abryan.sportgrid.R
 import com.abryan.sportgrid.domain.model.Match
-import com.abryan.sportgrid.domain.model.MatchStatus
-import com.abryan.sportgrid.domain.model.SportType
 import com.abryan.sportgrid.ui.components.EmptyState
 import com.abryan.sportgrid.ui.components.ErrorState
 import com.abryan.sportgrid.ui.components.HeroLiveCard
@@ -66,8 +84,20 @@ import com.abryan.sportgrid.ui.theme.VoltGreen
 
 data class FeaturedAthlete(
     val name: String,
-    val avatarUrl: String? = null
+    val avatarUrl: String? = null,
+    val sportName: String = "Football"
 )
+
+// GSAP-style Interactive Spring Bounce Modifier
+fun Modifier.springBounceClick(onClick: () -> Unit): Modifier = this.pointerInput(Unit) {
+    awaitEachGesture {
+        awaitFirstDown()
+        val up = waitForUpOrCancellation()
+        if (up != null) {
+            onClick()
+        }
+    }
+}
 
 @Composable
 fun HomeScreen(
@@ -81,14 +111,47 @@ fun HomeScreen(
     onNavigateToMatchDetail: (Int) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
+    // GSAP Staggered Entrance Animation State
+    var isScreenEntered by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        isScreenEntered = true
+    }
+
+    // GSAP-style Continuous Living Radar Glow Transition
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse_radar")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = 1.15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "radar_scale"
+    )
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 0.85f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "radar_alpha"
+    )
+
+    // Real HD Photos for athletes across world sports
     val athletes = remember {
         listOf(
-            FeaturedAthlete("Haliburton", "https://media.api-sports.io/basketball/players/1879.png"),
-            FeaturedAthlete("S. Curry", "https://media.api-sports.io/basketball/players/124.png"),
-            FeaturedAthlete("Mbappé", "https://media.api-sports.io/football/players/278.png"),
-            FeaturedAthlete("Bellingham", "https://media.api-sports.io/football/players/152982.png"),
-            FeaturedAthlete("Haaland", "https://media.api-sports.io/football/players/1100.png")
+            FeaturedAthlete("Mbappé", "https://media.api-sports.io/football/players/278.png", "Sepak Bola"),
+            FeaturedAthlete("S. Curry", "https://a.espncdn.com/i/headshots/nba/players/full/3975.png", "Basket"),
+            FeaturedAthlete("Bellingham", "https://media.api-sports.io/football/players/152982.png", "Sepak Bola"),
+            FeaturedAthlete("Haliburton", "https://a.espncdn.com/i/headshots/nba/players/full/4396993.png", "Basket"),
+            FeaturedAthlete("Haaland", "https://media.api-sports.io/football/players/1100.png", "Sepak Bola"),
+            FeaturedAthlete("L. Messi", "https://media.api-sports.io/football/players/154.png", "Sepak Bola"),
+            FeaturedAthlete("C. Ronaldo", "https://media.api-sports.io/football/players/874.png", "Sepak Bola"),
+            FeaturedAthlete("S. Ohtani", "https://a.espncdn.com/i/headshots/mlb/players/full/39832.png", "Bisbol")
         )
     }
 
@@ -115,303 +178,454 @@ fun HomeScreen(
                 onRetry = { viewModel.refresh() }
             )
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 32.dp)
-            ) {
-                // Top Header: User Profile, Logo, Actions (from reference image)
-                item {
+            // Header Top Bar
+            Column(modifier = Modifier.fillMaxSize()) {
+                HomeHeader(
+                    onRefresh = { viewModel.refresh() },
+                    onNavigateToProfiles = onNavigateToProfiles,
+                    isLandscape = isLandscape
+                )
+
+                if (isLandscape) {
+                    // DUAL COLUMN RESPONSIVE LAYOUT FOR LANDSCAPE (Broadcasting Dashboard)
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 14.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
+                        // Left Column (Hero, Spotlight Athletes, Banner)
+                        LazyColumn(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .clickable(onClick = onNavigateToProfiles)
+                                .weight(1f)
+                                .fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 24.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Profil Pemain & Pelatih",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "SPORT",
-                                style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp),
-                                fontWeight = FontWeight.Black,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text(
-                                text = "GRID+",
-                                style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp),
-                                fontWeight = FontWeight.Black,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            IconButton(onClick = { viewModel.refresh() }, modifier = Modifier.size(36.dp)) {
-                                Icon(
-                                    imageVector = Icons.Default.Refresh,
-                                    contentDescription = "Refresh",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            item {
+                                Text(
+                                    text = "SPOTLIGHT DUNIA",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        letterSpacing = 1.sp,
+                                        color = VoltGreen
+                                    ),
+                                    modifier = Modifier.padding(bottom = 6.dp)
                                 )
+                                AthleteStoriesRow(
+                                    athletes = athletes,
+                                    pulseScale = pulseScale,
+                                    onAthleteClick = onNavigateToProfiles
+                                )
+                                Spacer(modifier = Modifier.height(14.dp))
                             }
-                            IconButton(onClick = onNavigateToProfiles, modifier = Modifier.size(36.dp)) {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = "Cari Pemain & Pelatih",
-                                    tint = MaterialTheme.colorScheme.primary
+
+                            if (state.heroMatch != null) {
+                                item {
+                                    HeroLiveCard(
+                                        match = state.heroMatch!!,
+                                        onClick = { onNavigateToMatchDetail(state.heroMatch!!.id) }
+                                    )
+                                    Spacer(modifier = Modifier.height(14.dp))
+                                }
+                            }
+
+                            item {
+                                TopEventBanner(
+                                    title = "${stringResource(state.selectedSport.displayNameRes)} • Spotlight"
                                 )
                             }
                         }
-                    }
-                }
 
-                // Athlete Circles (Stories / Spotlight bar from reference image)
-                item {
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    ) {
-                        items(athletes) { athlete ->
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    .width(62.dp)
-                                    .clickable(onClick = onNavigateToProfiles)
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-                                        .size(54.dp)
-                                        .clip(CircleShape)
-                                        .border(2.dp, VoltGreen, CircleShape)
-                                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                                ) {
-                                    if (!athlete.avatarUrl.isNullOrBlank()) {
-                                        AsyncImage(
-                                            model = athlete.avatarUrl,
-                                            contentDescription = athlete.name,
-                                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                                            modifier = Modifier.fillMaxSize()
-                                        )
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.Default.Person,
-                                            contentDescription = athlete.name,
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            modifier = Modifier.size(28.dp)
+                        // Right Column (Filters, Fixtures, Leagues, Transfers)
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(1.15f)
+                                .fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 24.dp)
+                        ) {
+                            item {
+                                QuickExploreCard(
+                                    onNavigateToProfiles = onNavigateToProfiles,
+                                    modifier = Modifier.padding(bottom = 10.dp)
+                                )
+                            }
+
+                            item {
+                                SportFilterChips(
+                                    selectedSport = state.selectedSport,
+                                    onSportSelected = { viewModel.onSportSelected(it) },
+                                    modifier = Modifier.padding(bottom = 12.dp)
+                                )
+                            }
+
+                            item {
+                                SectionTitle(title = stringResource(R.string.section_today_matches))
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+
+                            if (state.todayMatches.isEmpty()) {
+                                item {
+                                    EmptyState(message = stringResource(R.string.state_empty))
+                                }
+                            } else {
+                                items(state.todayMatches) { match ->
+                                    Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                                        MatchCard(
+                                            match = match,
+                                            onClick = { onNavigateToMatchDetail(match.id) }
                                         )
                                     }
                                 }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = athlete.name,
-                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
                             }
-                        }
-                    }
-                }
 
-                // Quick Action Bar: Jelajahi Profil Pemain & Pelatih
-                item {
-                    Surface(
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(20.dp),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 6.dp)
-                            .clickable(onClick = onNavigateToProfiles)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Text(
-                                    text = "Cari profil pemain & pelatih dunia...",
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        fontSize = 13.sp
+                            // Popular Leagues
+                            if (state.popularLeagues.isNotEmpty()) {
+                                item {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    SectionHeaderWithAction(
+                                        title = stringResource(R.string.section_popular_leagues),
+                                        actionText = stringResource(R.string.view_all),
+                                        onAction = onNavigateToLeagues
                                     )
-                                )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                        items(state.popularLeagues) { league ->
+                                            LeagueCard(league = league)
+                                        }
+                                    }
+                                }
                             }
-                            Text(
-                                text = "Jelajahi",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            )
-                        }
-                    }
-                }
 
-                // Sport Filter Chips (Horizontal)
-                item {
-                    SportFilterChips(
-                        selectedSport = state.selectedSport,
-                        onSportSelected = { viewModel.onSportSelected(it) },
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
-
-                // Hero Live Match
-                if (state.heroMatch != null) {
-                    item {
-                        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                            HeroLiveCard(
-                                match = state.heroMatch!!,
-                                onClick = { onNavigateToMatchDetail(state.heroMatch!!.id) }
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(20.dp))
-                    }
-                }
-
-                // Top Events / Featured Banner (Volt Green style from reference image)
-                item {
-                    TopEventBanner(
-                        title = "${stringResource(state.selectedSport.displayNameRes)} • Spotlight",
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-
-                // Popular Leagues Section
-                if (state.popularLeagues.isNotEmpty()) {
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 20.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.section_popular_leagues),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            TextButton(onClick = onNavigateToLeagues) {
-                                Text(
-                                    text = stringResource(R.string.view_all),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
+                            // Latest Transfers
+                            if (state.selectedSport.isFootball && state.latestTransfers.isNotEmpty()) {
+                                item {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    SectionHeaderWithAction(
+                                        title = stringResource(R.string.section_latest_transfers),
+                                        actionText = stringResource(R.string.view_all),
+                                        onAction = onNavigateToTransfers
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                                items(state.latestTransfers.take(3)) { transfer ->
+                                    Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                                        TransferCard(transfer = transfer)
+                                    }
+                                }
                             }
                         }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        LazyRow(
-                            contentPadding = PaddingValues(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(state.popularLeagues) { league ->
-                                LeagueCard(league = league)
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
-                }
-
-                // Today's Matches Section
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.section_today_matches),
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-
-                if (state.todayMatches.isEmpty()) {
-                    item {
-                        EmptyState(message = stringResource(R.string.state_empty))
                     }
                 } else {
-                    items(state.todayMatches) { match ->
-                        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-                            MatchCard(
-                                match = match,
-                                onClick = { onNavigateToMatchDetail(match.id) }
+                    // PORTRAIT FLUID STREAM LAYOUT
+                    val entranceOffset by animateFloatAsState(
+                        targetValue = if (isScreenEntered) 0f else 30f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        ),
+                        label = "gsap_entrance"
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer { translationY = entranceOffset },
+                        contentPadding = PaddingValues(bottom = 32.dp)
+                    ) {
+                        // Athlete Circles (Spotlight bar)
+                        item {
+                            AthleteStoriesRow(
+                                athletes = athletes,
+                                pulseScale = pulseScale,
+                                onAthleteClick = onNavigateToProfiles
                             )
                         }
-                    }
-                }
 
-                // Latest Transfers (Football only)
-                if (state.selectedSport.isFootball && state.latestTransfers.isNotEmpty()) {
-                    item {
-                        Spacer(modifier = Modifier.height(18.dp))
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 20.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.section_latest_transfers),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onSurface
+                        // Quick Action Bar: Jelajahi Pemain, Pelatih & Klub
+                        item {
+                            QuickExploreCard(
+                                onNavigateToProfiles = onNavigateToProfiles,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
                             )
-                            TextButton(onClick = onNavigateToTransfers) {
-                                Text(
-                                    text = stringResource(R.string.view_all),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
+                        }
+
+                        // Sport Filter Chips (Horizontal)
+                        item {
+                            SportFilterChips(
+                                selectedSport = state.selectedSport,
+                                onSportSelected = { viewModel.onSportSelected(it) },
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+                        }
+
+                        // Hero Live Match
+                        if (state.heroMatch != null) {
+                            item {
+                                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                    HeroLiveCard(
+                                        match = state.heroMatch!!,
+                                        onClick = { onNavigateToMatchDetail(state.heroMatch!!.id) }
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(20.dp))
                             }
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
 
-                    items(state.latestTransfers.take(3)) { transfer ->
-                        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
-                            TransferCard(transfer = transfer)
+                        // Top Events / Featured Banner
+                        item {
+                            TopEventBanner(
+                                title = "${stringResource(state.selectedSport.displayNameRes)} • Spotlight",
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
+                        }
+
+                        // Popular Leagues Section
+                        if (state.popularLeagues.isNotEmpty()) {
+                            item {
+                                SectionHeaderWithAction(
+                                    title = stringResource(R.string.section_popular_leagues),
+                                    actionText = stringResource(R.string.view_all),
+                                    onAction = onNavigateToLeagues,
+                                    modifier = Modifier.padding(horizontal = 20.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                LazyRow(
+                                    contentPadding = PaddingValues(horizontal = 16.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    items(state.popularLeagues) { league ->
+                                        LeagueCard(league = league)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(24.dp))
+                            }
+                        }
+
+                        // Today's Matches Section
+                        item {
+                            SectionTitle(
+                                title = stringResource(R.string.section_today_matches),
+                                modifier = Modifier.padding(horizontal = 20.dp)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+
+                        if (state.todayMatches.isEmpty()) {
+                            item {
+                                EmptyState(message = stringResource(R.string.state_empty))
+                            }
+                        } else {
+                            items(state.todayMatches) { match ->
+                                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
+                                    MatchCard(
+                                        match = match,
+                                        onClick = { onNavigateToMatchDetail(match.id) }
+                                    )
+                                }
+                            }
+                        }
+
+                        // Latest Transfers (Football only)
+                        if (state.selectedSport.isFootball && state.latestTransfers.isNotEmpty()) {
+                            item {
+                                Spacer(modifier = Modifier.height(18.dp))
+                                SectionHeaderWithAction(
+                                    title = stringResource(R.string.section_latest_transfers),
+                                    actionText = stringResource(R.string.view_all),
+                                    onAction = onNavigateToTransfers,
+                                    modifier = Modifier.padding(horizontal = 20.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+
+                            items(state.latestTransfers.take(3)) { transfer ->
+                                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
+                                    TransferCard(transfer = transfer)
+                                }
+                            }
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeHeader(
+    onRefresh: () -> Unit,
+    onNavigateToProfiles: () -> Unit,
+    isLandscape: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = if (isLandscape) 24.dp else 20.dp,
+                vertical = if (isLandscape) 6.dp else 14.dp
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(if (isLandscape) 34.dp else 40.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .clickable(onClick = onNavigateToProfiles)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "Profil Pemain & Pelatih",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(if (isLandscape) 20.dp else 24.dp)
+            )
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "SPORT",
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = if (isLandscape) 18.sp else 22.sp),
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = "GRID+",
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = if (isLandscape) 18.sp else 22.sp),
+                fontWeight = FontWeight.Black,
+                color = VoltGreen
+            )
+        }
+
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            IconButton(onClick = onRefresh, modifier = Modifier.size(36.dp)) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Refresh",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            IconButton(onClick = onNavigateToProfiles, modifier = Modifier.size(36.dp)) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Cari Pemain, Pelatih & Klub",
+                    tint = VoltGreen
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AthleteStoriesRow(
+    athletes: List<FeaturedAthlete>,
+    pulseScale: Float,
+    onAthleteClick: () -> Unit
+) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.padding(bottom = 8.dp)
+    ) {
+        items(athletes) { athlete ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .width(62.dp)
+                    .clickable(onClick = onAthleteClick)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(54.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, VoltGreen, CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    if (!athlete.avatarUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = athlete.avatarUrl,
+                            contentDescription = athlete.name,
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = athlete.name,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = athlete.name,
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickExploreCard(
+    onNavigateToProfiles: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(20.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            VoltGreen.copy(alpha = 0.4f)
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onNavigateToProfiles)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    tint = VoltGreen,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Cari profil pemain, pelatih & bio klub...",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 13.sp
+                    )
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(VoltGreen.copy(alpha = 0.2f))
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
+            ) {
+                Text(
+                    text = "JELAJAHI",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = VoltGreen,
+                        fontSize = 10.sp
+                    )
+                )
             }
         }
     }
@@ -446,7 +660,7 @@ fun TopEventBanner(
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
-                        text = "FEATURED",
+                        text = "LIVE RADAR",
                         style = MaterialTheme.typography.labelSmall,
                         color = VoltGreen,
                         fontWeight = FontWeight.Bold
@@ -463,9 +677,49 @@ fun TopEventBanner(
                 fontWeight = FontWeight.Black
             )
             Text(
-                text = "Real-time scores, team standings and dynamic match tracking",
+                text = "Real-time scores, team standings, player stats and transfer tracker",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Black.copy(alpha = 0.75f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SectionTitle(
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun SectionHeaderWithAction(
+    title: String,
+    actionText: String,
+    onAction: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        TextButton(onClick = onAction) {
+            Text(
+                text = actionText,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }

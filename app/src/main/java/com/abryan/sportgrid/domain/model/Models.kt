@@ -62,8 +62,17 @@ data class Standing(
 enum class PersonRole {
     ALL,
     PLAYER,
-    COACH
+    COACH,
+    CLUB
 }
+
+data class CareerItem(
+    val teamName: String,
+    val teamLogo: String? = null,
+    val startYear: String? = null,
+    val endYear: String? = null,
+    val roleTitle: String? = null
+)
 
 data class PersonProfile(
     val id: String,
@@ -79,5 +88,27 @@ data class PersonProfile(
     val position: String? = null,
     val height: String? = null,
     val weight: String? = null,
-    val careerSummary: String? = null
+    val careerSummary: String? = null,
+    val careerHistory: List<CareerItem> = emptyList(),
+    val achievements: List<String> = emptyList(),
+    val coachingStyle: String? = null
+)
+
+data class ClubBio(
+    val id: Int,
+    val name: String,
+    val code: String? = null,
+    val logo: String? = null,
+    val country: String? = null,
+    val foundedYear: Int? = null,
+    val president: String? = null,
+    val manager: String? = null,
+    val stadiumName: String? = null,
+    val stadiumCity: String? = null,
+    val stadiumCapacity: Int? = null,
+    val stadiumImage: String? = null,
+    val website: String? = null,
+    val trophiesSummary: String? = null,
+    val description: String? = null,
+    val sportType: SportType = SportType.FOOTBALL
 )

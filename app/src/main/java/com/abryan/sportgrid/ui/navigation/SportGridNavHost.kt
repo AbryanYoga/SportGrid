@@ -14,6 +14,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.abryan.sportgrid.ui.components.SportGridBottomBar
+import com.abryan.sportgrid.ui.screens.clubdetail.ClubDetailScreen
+import com.abryan.sportgrid.ui.screens.coachdetail.CoachDetailScreen
 import com.abryan.sportgrid.ui.screens.home.HomeScreen
 import com.abryan.sportgrid.ui.screens.leaguedetail.LeagueDetailScreen
 import com.abryan.sportgrid.ui.screens.leagues.LeaguesScreen
@@ -112,7 +114,43 @@ fun SportGridAppShell(
             }
             composable("profiles") {
                 ProfilesScreen(
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onNavigateToCoach = { coachId ->
+                        navController.navigate("coach_detail/$coachId")
+                    },
+                    onNavigateToClub = { clubId ->
+                        navController.navigate("club_detail/$clubId")
+                    }
+                )
+            }
+            composable(
+                route = "coach_detail/{coachId}",
+                arguments = listOf(
+                    navArgument("coachId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val coachId = backStackEntry.arguments?.getString("coachId") ?: ""
+                CoachDetailScreen(
+                    coachId = coachId,
+                    onBack = { navController.popBackStack() },
+                    onNavigateToClub = { clubId ->
+                        navController.navigate("club_detail/$clubId")
+                    }
+                )
+            }
+            composable(
+                route = "club_detail/{clubId}",
+                arguments = listOf(
+                    navArgument("clubId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val clubId = backStackEntry.arguments?.getInt("clubId") ?: 0
+                ClubDetailScreen(
+                    clubId = clubId,
+                    onBack = { navController.popBackStack() },
+                    onNavigateToCoach = { coachId ->
+                        navController.navigate("coach_detail/$coachId")
+                    }
                 )
             }
             composable(

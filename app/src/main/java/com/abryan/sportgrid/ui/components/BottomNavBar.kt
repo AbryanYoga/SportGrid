@@ -1,5 +1,6 @@
 package com.abryan.sportgrid.ui.components
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.abryan.sportgrid.ui.navigation.Screen
@@ -31,17 +33,23 @@ fun SportGridBottomBar(
     onNavigate: (Screen) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 20.dp, vertical = 8.dp),
+            .padding(
+                horizontal = if (isLandscape) 64.dp else 20.dp,
+                vertical = if (isLandscape) 2.dp else 8.dp
+            ),
         contentAlignment = Alignment.Center
     ) {
         Surface(
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-            shape = RoundedCornerShape(32.dp),
-            shadowElevation = 10.dp,
+            shape = RoundedCornerShape(if (isLandscape) 20.dp else 32.dp),
+            shadowElevation = 8.dp,
             border = androidx.compose.foundation.BorderStroke(
                 1.dp,
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
@@ -51,7 +59,10 @@ fun SportGridBottomBar(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 6.dp, vertical = 6.dp),
+                    .padding(
+                        horizontal = if (isLandscape) 12.dp else 6.dp,
+                        vertical = if (isLandscape) 2.dp else 6.dp
+                    ),
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -65,19 +76,19 @@ fun SportGridBottomBar(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .weight(1f)
-                            .clip(RoundedCornerShape(24.dp))
+                            .clip(RoundedCornerShape(if (isLandscape) 16.dp else 24.dp))
                             .clickable(
                                 interactionSource = interactionSource,
                                 indication = null
                             ) {
                                 onNavigate(screen)
                             }
-                            .padding(vertical = 4.dp)
+                            .padding(vertical = if (isLandscape) 1.dp else 4.dp)
                     ) {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
-                                .size(46.dp)
+                                .size(if (isLandscape) 36.dp else 46.dp)
                                 .clip(CircleShape)
                                 .background(
                                     if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
@@ -87,7 +98,7 @@ fun SportGridBottomBar(
                                 imageVector = screen.icon,
                                 contentDescription = title,
                                 tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(if (isLandscape) 18.dp else 22.dp)
                             )
                         }
                     }

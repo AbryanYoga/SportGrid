@@ -59,6 +59,34 @@ data class TeamDetailDto(
 )
 
 @Serializable
+data class TeamResponseDto(
+    val team: TeamFullDto? = null,
+    val venue: VenueDto? = null
+)
+
+@Serializable
+data class TeamFullDto(
+    val id: Int? = null,
+    val name: String? = null,
+    val code: String? = null,
+    val country: String? = null,
+    val founded: Int? = null,
+    val national: Boolean? = null,
+    val logo: String? = null
+)
+
+@Serializable
+data class VenueDto(
+    val id: Int? = null,
+    val name: String? = null,
+    val address: String? = null,
+    val city: String? = null,
+    val capacity: Int? = null,
+    val surface: String? = null,
+    val image: String? = null
+)
+
+@Serializable
 data class GoalsDto(
     val home: Int? = null,
     val away: Int? = null
