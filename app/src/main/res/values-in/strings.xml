@@ -1,0 +1,88 @@
+<resources>
+    <string name="app_name">SportGrid</string>
+    <string name="app_tagline">Pusat Informasi Multi-Olahraga Universal</string>
+
+    <!-- Navigasi -->
+    <string name="nav_home">Beranda</string>
+    <string name="nav_live">Langsung</string>
+    <string name="nav_leagues">Liga</string>
+    <string name="nav_transfers">Transfer</string>
+    <string name="nav_settings">Pengaturan</string>
+
+    <!-- Olahraga -->
+    <string name="sport_all">Semua Olahraga</string>
+    <string name="sport_football">Sepak Bola</string>
+    <string name="sport_basketball">Bola Basket</string>
+    <string name="sport_volleyball">Bola Voli</string>
+    <string name="sport_baseball">Bisbol</string>
+    <string name="sport_hockey">Hoki</string>
+
+    <!-- Bagian Beranda -->
+    <string name="section_live_now">Pertandingan Langsung</string>
+    <string name="section_popular_leagues">Liga Populer</string>
+    <string name="section_today_matches">Pertandingan Hari Ini</string>
+    <string name="section_latest_transfers">Bursa Transfer Terbaru</string>
+    <string name="view_all">Lihat Semua</string>
+    <string name="no_live_matches_fallback">Belum ada pertandingan langsung saat ini. Menampilkan jadwal hari ini.</string>
+
+    <!-- Kartu Pertandingan & Status -->
+    <string name="status_live">LANGSUNG</string>
+    <string name="status_finished">Selesai</string>
+    <string name="status_halftime">Babak 1</string>
+    <string name="status_not_started">Segera</string>
+    <string name="status_postponed">Ditunda</string>
+    <string name="match_vs">VS</string>
+    <string name="key_plays">Momen kunci pertandingan ini</string>
+
+    <!-- Transfer -->
+    <string name="transfer_market">Bursa Transfer</string>
+    <string name="transfers_football_only">Bursa transfer pemain saat ini khusus tersedia untuk cabang Sepak Bola.</string>
+    <string name="transfer_from">Dari</string>
+    <string name="transfer_to">Ke</string>
+    <string name="transfer_type">Jenis</string>
+    <string name="transfer_free">Bebas Transfer</string>
+    <string name="transfer_loan">Pinjaman</string>
+    <string name="transfer_search_team">Cari klub (cth: Real Madrid, Arsenal)…</string>
+    <string name="select_team_to_view_transfers">Cari atau pilih klub untuk melihat riwayat transfer pemain</string>
+
+    <!-- Liga & Klasemen -->
+    <string name="search_leagues">Cari nama liga, kompetisi…</string>
+    <string name="tab_fixtures">Jadwal</string>
+    <string name="tab_standings">Klasemen</string>
+    <string name="rank">#</string>
+    <string name="team">Klub</string>
+    <string name="played">Main</string>
+    <string name="won">M</string>
+    <string name="drawn">S</string>
+    <string name="lost">K</string>
+    <string name="points">Poin</string>
+    <string name="league_type_league">Liga</string>
+    <string name="league_type_cup">Piala</string>
+
+    <!-- Pengaturan -->
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_appearance">Tampilan</string>
+    <string name="settings_theme">Tema Aplikasi</string>
+    <string name="theme_system">Ikuti Sistem</string>
+    <string name="theme_light">Terang</string>
+    <string name="theme_dark">Gelap</string>
+    <string name="settings_language">Bahasa</string>
+    <string name="lang_english">English</string>
+    <string name="lang_indonesian">Bahasa Indonesia</string>
+    <string name="settings_about">Tentang SportGrid</string>
+    <string name="about_description">Aplikasi skor langsung multi-olahraga, klasemen liga, dan bursa transfer pemain berbasis Jetpack Compose &amp; Material 3.</string>
+    <string name="about_school">SMK N 6 Surakarta — Rekayasa Perangkat Lunak</string>
+    <string name="about_author">Dibuat oleh Abryan Yoga Pratama</string>
+    <string name="about_api_credit">Didukung oleh API-Sports</string>
+
+    <!-- Status & Pesan Kesalahan -->
+    <string name="state_empty">Tidak ada data tersedia</string>
+    <string name="state_empty_search">Tidak ada hasil yang cocok dengan pencarian Anda</string>
+    <string name="state_error_network">Koneksi internet terputus. Silakan periksa jaringan Anda.</string>
+    <string name="state_error_timeout">Waktu permintaan habis. Silakan coba kembali.</string>
+    <string name="state_error_quota">Batas kuota harian API tercapai (100 req/hari). Menampilkan data tersimpan.</string>
+    <string name="state_error_api_key">Kunci API belum diisi. Tambahkan API_SPORTS_KEY di local.properties.</string>
+    <string name="state_error_generic">Terjadi kesalahan. Silakan coba kembali.</string>
+    <string name="action_retry">Coba Lagi</string>
+    <string name="pull_to_refresh">Tarik untuk memuat ulang</string>
+</resources>
