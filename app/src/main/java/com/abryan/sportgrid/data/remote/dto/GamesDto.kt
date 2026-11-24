@@ -80,3 +80,13 @@ data class GamesPointsDto(
     val `for`: Int? = null,
     val against: Int? = null
 )
+
+@Serializable
+data class BasketballPlayerDto(
+    val id: Int? = null,
+    val name: String? = null,
+    val number: String? = null,
+    val country: String? = null,
+    val position: String? = null,
+    val age: Int? = null
+)

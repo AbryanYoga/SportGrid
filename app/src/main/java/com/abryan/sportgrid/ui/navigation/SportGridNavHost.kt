@@ -18,6 +18,7 @@ import com.abryan.sportgrid.ui.screens.home.HomeScreen
 import com.abryan.sportgrid.ui.screens.leaguedetail.LeagueDetailScreen
 import com.abryan.sportgrid.ui.screens.leagues.LeaguesScreen
 import com.abryan.sportgrid.ui.screens.live.LiveScreen
+import com.abryan.sportgrid.ui.screens.profiles.ProfilesScreen
 import com.abryan.sportgrid.ui.screens.settings.SettingsScreen
 import com.abryan.sportgrid.ui.screens.transfers.TransfersScreen
 
@@ -87,6 +88,9 @@ fun SportGridAppShell(
                             restoreState = true
                         }
                     },
+                    onNavigateToProfiles = {
+                        navController.navigate("profiles")
+                    },
                     onNavigateToMatchDetail = { /* Handled in fixtures */ }
                 )
             }
@@ -105,6 +109,11 @@ fun SportGridAppShell(
             }
             composable(Screen.Settings.route) {
                 SettingsScreen()
+            }
+            composable("profiles") {
+                ProfilesScreen(
+                    onBack = { navController.popBackStack() }
+                )
             }
             composable(
                 route = "league_detail/{leagueId}/{sportSlug}",

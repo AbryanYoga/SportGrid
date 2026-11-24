@@ -77,6 +77,7 @@ fun HomeScreen(
     ),
     onNavigateToLeagues: () -> Unit = {},
     onNavigateToTransfers: () -> Unit = {},
+    onNavigateToProfiles: () -> Unit = {},
     onNavigateToMatchDetail: (Int) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -133,10 +134,11 @@ fun HomeScreen(
                                 .size(40.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .clickable(onClick = onNavigateToProfiles)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Person,
-                                contentDescription = null,
+                                contentDescription = "Profil Pemain & Pelatih",
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -165,11 +167,11 @@ fun HomeScreen(
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            IconButton(onClick = onNavigateToLeagues, modifier = Modifier.size(36.dp)) {
+                            IconButton(onClick = onNavigateToProfiles, modifier = Modifier.size(36.dp)) {
                                 Icon(
                                     imageVector = Icons.Default.Search,
-                                    contentDescription = "Search",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    contentDescription = "Cari Pemain & Pelatih",
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -181,12 +183,14 @@ fun HomeScreen(
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.padding(bottom = 14.dp)
+                        modifier = Modifier.padding(bottom = 8.dp)
                     ) {
                         items(athletes) { athlete ->
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.width(62.dp)
+                                modifier = Modifier
+                                    .width(62.dp)
+                                    .clickable(onClick = onNavigateToProfiles)
                             ) {
                                 Box(
                                     contentAlignment = Alignment.Center,
@@ -221,6 +225,54 @@ fun HomeScreen(
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
+                        }
+                    }
+                }
+
+                // Quick Action Bar: Jelajahi Profil Pemain & Pelatih
+                item {
+                    Surface(
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = RoundedCornerShape(20.dp),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 6.dp)
+                            .clickable(onClick = onNavigateToProfiles)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = "Cari profil pemain & pelatih dunia...",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontSize = 13.sp
+                                    )
+                                )
+                            }
+                            Text(
+                                text = "Jelajahi",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            )
                         }
                     }
                 }

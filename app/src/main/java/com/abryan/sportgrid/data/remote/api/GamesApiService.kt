@@ -1,5 +1,6 @@
 package com.abryan.sportgrid.data.remote.api
 
+import com.abryan.sportgrid.data.remote.dto.BasketballPlayerDto
 import com.abryan.sportgrid.data.remote.dto.GamesLeagueItemDto
 import com.abryan.sportgrid.data.remote.dto.GamesMatchItemDto
 import com.abryan.sportgrid.data.remote.dto.GamesStandingItemDto
@@ -27,4 +28,9 @@ interface GamesApiService {
         @Query("league") league: Int,
         @Query("season") season: String? = null
     ): ApiResponse<GamesStandingItemDto>
+
+    @GET("players")
+    suspend fun searchBasketballPlayers(
+        @Query("search") search: String
+    ): ApiResponse<BasketballPlayerDto>
 }

@@ -1,9 +1,11 @@
 package com.abryan.sportgrid.data.remote.api
 
+import com.abryan.sportgrid.data.remote.dto.CoachDetailDto
 import com.abryan.sportgrid.data.remote.dto.FootballFixtureItemDto
 import com.abryan.sportgrid.data.remote.dto.FootballLeagueItemDto
 import com.abryan.sportgrid.data.remote.dto.FootballStandingItemDto
 import com.abryan.sportgrid.data.remote.dto.FootballTransferItemDto
+import com.abryan.sportgrid.data.remote.dto.PlayerProfileItemDto
 import com.abryan.sportgrid.data.remote.dto.TeamDetailDto
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -42,4 +44,14 @@ interface FootballApiService {
     suspend fun getTransfers(
         @Query("team") team: Int
     ): ApiResponse<FootballTransferItemDto>
+
+    @GET("players/profiles")
+    suspend fun searchPlayerProfiles(
+        @Query("search") search: String
+    ): ApiResponse<PlayerProfileItemDto>
+
+    @GET("coachs")
+    suspend fun searchCoaches(
+        @Query("search") search: String
+    ): ApiResponse<CoachDetailDto>
 }

@@ -58,3 +58,26 @@ data class Standing(
     val lost: Int,
     val points: Int
 )
+
+enum class PersonRole {
+    ALL,
+    PLAYER,
+    COACH
+}
+
+data class PersonProfile(
+    val id: String,
+    val name: String,
+    val role: PersonRole,
+    val sportType: SportType,
+    val photo: String? = null,
+    val age: Int? = null,
+    val nationality: String? = null,
+    val teamName: String? = null,
+    val teamLogo: String? = null,
+    val number: Int? = null,
+    val position: String? = null,
+    val height: String? = null,
+    val weight: String? = null,
+    val careerSummary: String? = null
+)

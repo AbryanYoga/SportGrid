@@ -72,9 +72,16 @@ Aplikasi **SportGrid** tidak bergantung pada satu penyedia data tunggal. Dengan 
 4. **Bursa Transfer Pemain (Transfer Market)**
    - Riwayat perpindahan pemain bintang dunia (foto pemain, klub asal, klub tujuan, tanggal transfer, dan biaya transfer).
    - Filter klub-klub raksasa Eropa (Real Madrid, Arsenal, Manchester City, Barcelona, Bayern Munich, PSG, Juventus, Liverpool).
+   - Pengurutan otomatis dari transfer paling mutakhir (*descending order*).
    - Dukungan pencarian klub kustom.
 
-5. **Pengaturan Tema & Multi-Bahasa (Settings)**
+5. **Profil Bintang & Pelatih Dunia (Player & Coach Profiles)**
+   - **Pencarian Pemain & Pelatih:** Mendukung pencarian online via API-Sports serta katalog bintang dunia terkurasi di 5 cabang olahraga (Sepak Bola, Bola Basket, Bola Voli, Bisbol, Hoki Es).
+   - **Filter Multi-Kategori:** Filter segmen peran (Semua, Pemain, Pelatih) dan filter cabang olahraga.
+   - **Metrik Lengkap & Bio Modal:** Menampilkan foto HD atlet, lencana peran, klub saat ini, nomor punggung, posisi, usia, tinggi badan, berat badan, serta catatan ringkasan karier & prestasi.
+   - **Akses Cepat:** Dapat diakses langsung dari bilah pencarian beranda, ikon profil, atau dengan mengetuk lingkaran avatar *Athlete Spotlight*.
+
+6. **Pengaturan Tema & Multi-Bahasa (Settings)**
    - **Mode Tema:** Mendukung *Carbon Dark* (Gelap), *Light* (Terang), dan *Ikuti Sistem*.
    - **Bahasa Aplikasi (Per-App Language):** Bahasa Indonesia dan English (US) dengan pergantian dinamis tanpa perlu restart ponsel.
    - Konfigurasi status API dan informasi cache.

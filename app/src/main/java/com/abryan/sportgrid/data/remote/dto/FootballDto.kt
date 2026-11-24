@@ -116,3 +116,45 @@ data class TransferTeamsPairDto(
     val `in`: TeamDetailDto? = null,
     val `out`: TeamDetailDto? = null
 )
+
+@Serializable
+data class PlayerProfileItemDto(
+    val player: PlayerProfileDetailDto? = null
+)
+
+@Serializable
+data class PlayerProfileDetailDto(
+    val id: Int? = null,
+    val name: String? = null,
+    val firstname: String? = null,
+    val lastname: String? = null,
+    val age: Int? = null,
+    val nationality: String? = null,
+    val height: String? = null,
+    val weight: String? = null,
+    val number: Int? = null,
+    val position: String? = null,
+    val photo: String? = null
+)
+
+@Serializable
+data class CoachDetailDto(
+    val id: Int? = null,
+    val name: String? = null,
+    val firstname: String? = null,
+    val lastname: String? = null,
+    val age: Int? = null,
+    val nationality: String? = null,
+    val height: String? = null,
+    val weight: String? = null,
+    val photo: String? = null,
+    val team: TeamDetailDto? = null,
+    val career: List<CoachCareerDto>? = null
+)
+
+@Serializable
+data class CoachCareerDto(
+    val team: TeamDetailDto? = null,
+    val start: String? = null,
+    val end: String? = null
+)
