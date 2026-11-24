@@ -20,6 +20,8 @@ import com.abryan.sportgrid.ui.screens.home.HomeScreen
 import com.abryan.sportgrid.ui.screens.leaguedetail.LeagueDetailScreen
 import com.abryan.sportgrid.ui.screens.leagues.LeaguesScreen
 import com.abryan.sportgrid.ui.screens.live.LiveScreen
+import com.abryan.sportgrid.ui.screens.matchdetail.MatchDetailScreen
+import com.abryan.sportgrid.ui.screens.playerdetail.PlayerDetailScreen
 import com.abryan.sportgrid.ui.screens.profiles.ProfilesScreen
 import com.abryan.sportgrid.ui.screens.settings.SettingsScreen
 import com.abryan.sportgrid.ui.screens.transfers.TransfersScreen
@@ -93,11 +95,20 @@ fun SportGridAppShell(
                     onNavigateToProfiles = {
                         navController.navigate("profiles")
                     },
-                    onNavigateToMatchDetail = { /* Handled in fixtures */ }
+                    onNavigateToPlayerDetail = { playerId ->
+                        navController.navigate("player_detail/$playerId")
+                    },
+                    onNavigateToMatchDetail = { matchId ->
+                        navController.navigate("match_detail/$matchId")
+                    }
                 )
             }
             composable(Screen.Live.route) {
-                LiveScreen()
+                LiveScreen(
+                    onMatchClick = { matchId ->
+                        navController.navigate("match_detail/$matchId")
+                    }
+                )
             }
             composable(Screen.Leagues.route) {
                 LeaguesScreen(
@@ -114,6 +125,42 @@ fun SportGridAppShell(
             }
             composable("profiles") {
                 ProfilesScreen(
+                    onBack = { navController.popBackStack() },
+                    onNavigateToCoach = { coachId ->
+                        navController.navigate("coach_detail/$coachId")
+                    },
+                    onNavigateToClub = { clubId ->
+                        navController.navigate("club_detail/$clubId")
+                    },
+                    onNavigateToPlayer = { playerId ->
+                        navController.navigate("player_detail/$playerId")
+                    }
+                )
+            }
+            composable(
+                route = "player_detail/{playerId}",
+                arguments = listOf(
+                    navArgument("playerId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val playerId = backStackEntry.arguments?.getString("playerId") ?: ""
+                PlayerDetailScreen(
+                    playerId = playerId,
+                    onBack = { navController.popBackStack() },
+                    onNavigateToClub = { clubId ->
+                        navController.navigate("club_detail/$clubId")
+                    }
+                )
+            }
+            composable(
+                route = "match_detail/{matchId}",
+                arguments = listOf(
+                    navArgument("matchId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val matchId = backStackEntry.arguments?.getInt("matchId") ?: 0
+                MatchDetailScreen(
+                    matchId = matchId,
                     onBack = { navController.popBackStack() },
                     onNavigateToCoach = { coachId ->
                         navController.navigate("coach_detail/$coachId")
@@ -165,7 +212,10 @@ fun SportGridAppShell(
                 LeagueDetailScreen(
                     leagueId = leagueId,
                     sportSlug = sportSlug,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onNavigateToMatchDetail = { matchId ->
+                        navController.navigate("match_detail/$matchId")
+                    }
                 )
             }
         }

@@ -77,15 +77,20 @@ Aplikasi **SportGrid** tidak bergantung pada satu penyedia data tunggal. Dengan 
 
 5. **Profil Bintang, Pelatih Kepala & Bio Data Klub (Universal Profiles & Club Bio)**
    - **Pencarian Universal Pemain, Pelatih & Klub:** Mendukung pencarian online via API-Sports serta katalog bintang dunia terkurasi di 5 cabang olahraga (Sepak Bola, Bola Basket, Bola Voli, Bisbol, Hoki Es).
-   - **Halaman Khusus Pelatih (Dedicated Coach Screen):** Berpindah ke layar penuh khusus (`CoachDetailScreen`) saat pelatih dipilih (bukan pop-up modal biasa), menampilkan potret resmi, filosofi & gaya melatih, rekor gelar juara/trofi, serta linimasa karier manajerial klub dari tahun ke tahun.
+   - **Halaman Khusus Biodata Pemain (`PlayerDetailScreen`):** Berpindah ke layar penuh khusus saat pemain ditekan (menggantikan pop-up modal biasa), menampilkan potret resmi HD, nomor punggung, posisi, klub saat ini, usia, tinggi, berat badan, dominansi kaki/tangan, nilai pasar, gaya bermain, serta linimasa riwayat transfer karier klub dari masa ke masa dan lemari trofi penghargaan.
+   - **Halaman Khusus Pelatih (`CoachDetailScreen`):** Layar penuh khusus menampilkan potret resmi, filosofi & gaya melatih, rekor gelar juara/trofi, serta linimasa karier manajerial klub dari tahun ke tahun.
    - **Bio Data Resmi Klub & Presiden Klub (`ClubDetailScreen`):** Profil mendalam klub dunia menampilkan **Presiden/Pemilik Klub** (Florentino Pérez, Joan Laporta, Stan Kroenke, Khaldoon Al Mubarak, Herbert Hainer, Nasser Al-Khelaifi, dll.), Pelatih Kepala, Foto & Kapasitas Stadion Utama, Lemari Trofi, Sejarah Klub, dan tautan situs resmi.
-   - **Metrik Lengkap Pemain:** Menampilkan foto resmi HD atlet, nomor punggung, posisi, usia, tinggi, berat badan, serta ringkasan karier.
 
-6. **Optimasi Mode Landscape & Animasi Fluid GSAP**
+6. **Analisis Taktik, Formasi & Statistik Laga (`MatchDetailScreen`)**
+   - **Taktik & Formasi Tim:** Menampilkan formasi kedua tim (misal: 4-3-3 vs 4-2-3-1), nama pelatih kepala, filosofi pendekatan permainan, visual lapangan taktik (*Pitch Formation Board*), dan daftar starting 11 pemain lengkap beserta nomor punggung.
+   - **Statistik Komparasi Mendalam:** Grafik batang komparasi interaktif untuk penguasaan bola (*Possession %*), total tembakan (*Total Shots*), tembakan tepat sasaran (*Shots on Target*), akurasi operan (*Passing Accuracy*), pelanggaran (*Fouls*), tendangan sudut (*Corner Kicks*), kartu kuning & merah, *Offsides*, dan penyelamatan kiper (*Saves*).
+   - **Linimasa Pertandingan:** Kronologi menit demi menit peristiwa gol, kartu wasit, dan pergantian pemain.
+
+7. **Optimasi Mode Landscape & Animasi Fluid GSAP**
    - **Tampilan Landscape Responsif (Dual-Column Dashboard):** Di mode horizontal, tata letak otomatis membagi layar menjadi 2 kolom (Kolom Kiri: *Athlete Spotlight*, *Hero Live Match*, dan *Banner*; Kolom Kanan: *Quick Explore*, *Sport Chips*, *Today's Fixtures*, dan *Transfers*) dengan *floating bottom bar* yang ramping sehingga layar tidak terasa sempit.
    - **Animasi Fisika Jetpack Compose (GSAP-Style):** Menggunakan *physics-based spring motion* untuk transisi sentuhan (*bouncy press*), *continuous living radar glow* pada kartu pertandingan langsung, serta efek *staggered spring entrance*.
 
-7. **Pengaturan Tema & Multi-Bahasa (Settings)**
+8. **Pengaturan Tema & Multi-Bahasa (Settings)**
    - **Mode Tema:** Mendukung *Carbon Dark* (Gelap), *Light* (Terang), dan *Ikuti Sistem*.
    - **Bahasa Aplikasi (Per-App Language):** Bahasa Indonesia dan English (US) dengan pergantian dinamis tanpa perlu restart ponsel.
    - Konfigurasi status API dan informasi cache.

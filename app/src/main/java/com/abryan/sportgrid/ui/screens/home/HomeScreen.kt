@@ -83,6 +83,7 @@ import com.abryan.sportgrid.ui.components.TransferCard
 import com.abryan.sportgrid.ui.theme.VoltGreen
 
 data class FeaturedAthlete(
+    val id: String,
     val name: String,
     val avatarUrl: String? = null,
     val sportName: String = "Football"
@@ -108,6 +109,7 @@ fun HomeScreen(
     onNavigateToLeagues: () -> Unit = {},
     onNavigateToTransfers: () -> Unit = {},
     onNavigateToProfiles: () -> Unit = {},
+    onNavigateToPlayerDetail: (String) -> Unit = {},
     onNavigateToMatchDetail: (Int) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -144,14 +146,14 @@ fun HomeScreen(
     // Real HD Photos for athletes across world sports
     val athletes = remember {
         listOf(
-            FeaturedAthlete("Mbappé", "https://media.api-sports.io/football/players/278.png", "Sepak Bola"),
-            FeaturedAthlete("S. Curry", "https://a.espncdn.com/i/headshots/nba/players/full/3975.png", "Basket"),
-            FeaturedAthlete("Bellingham", "https://media.api-sports.io/football/players/152982.png", "Sepak Bola"),
-            FeaturedAthlete("Haliburton", "https://a.espncdn.com/i/headshots/nba/players/full/4396993.png", "Basket"),
-            FeaturedAthlete("Haaland", "https://media.api-sports.io/football/players/1100.png", "Sepak Bola"),
-            FeaturedAthlete("L. Messi", "https://media.api-sports.io/football/players/154.png", "Sepak Bola"),
-            FeaturedAthlete("C. Ronaldo", "https://media.api-sports.io/football/players/874.png", "Sepak Bola"),
-            FeaturedAthlete("S. Ohtani", "https://a.espncdn.com/i/headshots/mlb/players/full/39832.png", "Bisbol")
+            FeaturedAthlete("f_p1", "Mbappé", "https://media.api-sports.io/football/players/278.png", "Sepak Bola"),
+            FeaturedAthlete("b_p1", "S. Curry", "https://a.espncdn.com/i/headshots/nba/players/full/3975.png", "Basket"),
+            FeaturedAthlete("f_p2", "Bellingham", "https://media.api-sports.io/football/players/152982.png", "Sepak Bola"),
+            FeaturedAthlete("f_p3", "Haaland", "https://media.api-sports.io/football/players/1100.png", "Sepak Bola"),
+            FeaturedAthlete("f_p4", "L. Messi", "https://media.api-sports.io/football/players/154.png", "Sepak Bola"),
+            FeaturedAthlete("f_p5", "C. Ronaldo", "https://media.api-sports.io/football/players/874.png", "Sepak Bola"),
+            FeaturedAthlete("f_p6", "L. Yamal", "https://media.api-sports.io/football/players/361099.png", "Sepak Bola"),
+            FeaturedAthlete("bb_p1", "S. Ohtani", "https://a.espncdn.com/i/headshots/mlb/players/full/39832.png", "Bisbol")
         )
     }
 
@@ -214,7 +216,7 @@ fun HomeScreen(
                                 AthleteStoriesRow(
                                     athletes = athletes,
                                     pulseScale = pulseScale,
-                                    onAthleteClick = onNavigateToProfiles
+                                    onAthleteClick = onNavigateToPlayerDetail
                                 )
                                 Spacer(modifier = Modifier.height(14.dp))
                             }
@@ -337,7 +339,7 @@ fun HomeScreen(
                             AthleteStoriesRow(
                                 athletes = athletes,
                                 pulseScale = pulseScale,
-                                onAthleteClick = onNavigateToProfiles
+                                onAthleteClick = onNavigateToPlayerDetail
                             )
                         }
 
@@ -468,22 +470,6 @@ private fun HomeHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(if (isLandscape) 34.dp else 40.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .clickable(onClick = onNavigateToProfiles)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Profil Pemain & Pelatih",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(if (isLandscape) 20.dp else 24.dp)
-            )
-        }
-
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "SPORT",
@@ -522,7 +508,7 @@ private fun HomeHeader(
 private fun AthleteStoriesRow(
     athletes: List<FeaturedAthlete>,
     pulseScale: Float,
-    onAthleteClick: () -> Unit
+    onAthleteClick: (String) -> Unit
 ) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -534,7 +520,7 @@ private fun AthleteStoriesRow(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .width(62.dp)
-                    .clickable(onClick = onAthleteClick)
+                    .clickable { onAthleteClick(athlete.id) }
             ) {
                 Box(
                     contentAlignment = Alignment.Center,

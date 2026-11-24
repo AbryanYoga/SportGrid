@@ -91,7 +91,49 @@ data class PersonProfile(
     val careerSummary: String? = null,
     val careerHistory: List<CareerItem> = emptyList(),
     val achievements: List<String> = emptyList(),
-    val coachingStyle: String? = null
+    val coachingStyle: String? = null,
+    val dominantFootHand: String? = null,
+    val marketValue: String? = null
+)
+
+data class LineupPlayer(
+    val number: Int,
+    val name: String,
+    val position: String,
+    val isGoalkeeper: Boolean = false
+)
+
+data class TeamTactics(
+    val formation: String,
+    val managerName: String,
+    val tacticalStyle: String,
+    val starting11: List<LineupPlayer> = emptyList()
+)
+
+data class MatchStatItem(
+    val label: String,
+    val homeValue: String,
+    val awayValue: String,
+    val homeNumeric: Float,
+    val awayNumeric: Float
+)
+
+data class MatchEvent(
+    val minute: Int,
+    val type: String, // "GOAL", "CARD", "SUB"
+    val player: String,
+    val isHomeTeam: Boolean,
+    val detail: String? = null
+)
+
+data class MatchDetailData(
+    val match: Match,
+    val homeTactics: TeamTactics,
+    val awayTactics: TeamTactics,
+    val statistics: List<MatchStatItem>,
+    val events: List<MatchEvent> = emptyList(),
+    val stadium: String? = null,
+    val referee: String? = null
 )
 
 data class ClubBio(

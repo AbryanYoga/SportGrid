@@ -30,7 +30,21 @@ class PersonRepository {
             position = "Penyerang (Forward)",
             height = "178 cm",
             weight = "75 kg",
-            careerSummary = "Pemenang Piala Dunia 2018, top scorer Ligue 1 6x, bintang timnas Prancis & Real Madrid."
+            dominantFootHand = "Kaki Kanan",
+            marketValue = "€180.00m",
+            careerSummary = "Pemenang Piala Dunia FIFA 2018, top scorer Ligue 1 6x berturut-turut, bintang timnas Prancis & Real Madrid.",
+            achievements = listOf(
+                "Juara Piala Dunia FIFA 2018 (Prancis)",
+                "Golden Boot Piala Dunia FIFA 2022 (8 Gol)",
+                "6x Juara Ligue 1 Prancis",
+                "1x Juara UEFA Super Cup (2024)",
+                "Top Scorer Sepanjang Masa Paris Saint-Germain (256 Gol)"
+            ),
+            careerHistory = listOf(
+                CareerItem(teamName = "Real Madrid", startYear = "2024", endYear = "Sekarang", roleTitle = "Penyerang"),
+                CareerItem(teamName = "Paris Saint-Germain", startYear = "2017", endYear = "2024", roleTitle = "Penyerang"),
+                CareerItem(teamName = "AS Monaco", startYear = "2015", endYear = "2017", roleTitle = "Penyerang Muda")
+            )
         ),
         PersonProfile(
             id = "f_p2",
@@ -43,10 +57,23 @@ class PersonRepository {
             teamName = "Real Madrid",
             teamLogo = "https://media.api-sports.io/football/teams/541.png",
             number = 5,
-            position = "Gelandang (Midfielder)",
+            position = "Gelandang Serang (Attacking Midfielder)",
             height = "186 cm",
             weight = "75 kg",
-            careerSummary = "Juara Liga Champions 2024, Golden Boy 2023, motor serangan Real Madrid."
+            dominantFootHand = "Kaki Kanan",
+            marketValue = "€180.00m",
+            careerSummary = "Juara Liga Champions UEFA 2024, Golden Boy 2023, motor serangan dinamis Real Madrid dan timnas Inggris.",
+            achievements = listOf(
+                "Juara Liga Champions UEFA 2024",
+                "Juara La Liga Spanyol 2024",
+                "Kopa Trophy & Golden Boy Award 2023",
+                "La Liga Player of the Season 2023-24"
+            ),
+            careerHistory = listOf(
+                CareerItem(teamName = "Real Madrid", startYear = "2023", endYear = "Sekarang", roleTitle = "Gelandang"),
+                CareerItem(teamName = "Borussia Dortmund", startYear = "2020", endYear = "2023", roleTitle = "Gelandang"),
+                CareerItem(teamName = "Birmingham City", startYear = "2019", endYear = "2020", roleTitle = "Gelandang Muda")
+            )
         ),
         PersonProfile(
             id = "f_p3",
@@ -59,10 +86,24 @@ class PersonRepository {
             teamName = "Manchester City",
             teamLogo = "https://media.api-sports.io/football/teams/50.png",
             number = 9,
-            position = "Penyerang (Forward)",
+            position = "Penyerang Tengah (Striker)",
             height = "194 cm",
             weight = "88 kg",
-            careerSummary = "Treble Winner 2023, rekor pencetak gol terbanyak dalam satu musim Premier League."
+            dominantFootHand = "Kaki Kiri",
+            marketValue = "€200.00m",
+            careerSummary = "Treble Winner 2023, pemegang rekor gol terbanyak dalam satu musim Premier League (36 gol), mesin gol nomor satu dunia.",
+            achievements = listOf(
+                "Treble Winner Kontinental 2023 (UCL, EPL, FA Cup)",
+                "2x Premier League Golden Boot (2022-23, 2023-24)",
+                "UEFA Men's Player of the Year 2022-23",
+                "Rekor 36 Gol dalam Satu Musim Premier League"
+            ),
+            careerHistory = listOf(
+                CareerItem(teamName = "Manchester City", startYear = "2022", endYear = "Sekarang", roleTitle = "Striker Utama"),
+                CareerItem(teamName = "Borussia Dortmund", startYear = "2020", endYear = "2022", roleTitle = "Striker"),
+                CareerItem(teamName = "Red Bull Salzburg", startYear = "2019", endYear = "2020", roleTitle = "Striker"),
+                CareerItem(teamName = "Molde FK", startYear = "2017", endYear = "2019", roleTitle = "Striker")
+            )
         ),
         PersonProfile(
             id = "f_p4",
@@ -75,10 +116,24 @@ class PersonRepository {
             teamName = "Inter Miami",
             teamLogo = "https://media.api-sports.io/football/teams/1603.png",
             number = 10,
-            position = "Penyerang (Playmaker)",
+            position = "Playmaker / Forward",
             height = "170 cm",
             weight = "72 kg",
-            careerSummary = "8x Ballon d'Or, Juara Piala Dunia 2022, legenda sepak bola sepanjang masa."
+            dominantFootHand = "Kaki Kiri",
+            marketValue = "€30.00m",
+            careerSummary = "8x Ballon d'Or, Juara Piala Dunia FIFA 2022, 4x Liga Champions, pesepak bola terhebat dalam sejarah olahraga.",
+            achievements = listOf(
+                "8x Pemenang Ballon d'Or (Rekor Dunia Sepanjang Masa)",
+                "Juara Piala Dunia FIFA 2022 (Kapten Argentina)",
+                "2x Juara Copa América (2021, 2024)",
+                "4x Juara Liga Champions UEFA (Barcelona)",
+                "10x Juara La Liga & 2x Juara Ligue 1"
+            ),
+            careerHistory = listOf(
+                CareerItem(teamName = "Inter Miami", startYear = "2023", endYear = "Sekarang", roleTitle = "Kapten & Playmaker"),
+                CareerItem(teamName = "Paris Saint-Germain", startYear = "2021", endYear = "2023", roleTitle = "Penyerang"),
+                CareerItem(teamName = "FC Barcelona", startYear = "2004", endYear = "2021", roleTitle = "Legenda & Kapten")
+            )
         ),
         PersonProfile(
             id = "f_p5",
@@ -91,10 +146,27 @@ class PersonRepository {
             teamName = "Al Nassr",
             teamLogo = "https://media.api-sports.io/football/teams/2939.png",
             number = 7,
-            position = "Penyerang (Forward)",
+            position = "Penyerang (Striker)",
             height = "187 cm",
             weight = "83 kg",
-            careerSummary = "5x Ballon d'Or, 5x Juara Liga Champions, top scorer sepanjang masa dunia sepak bola."
+            dominantFootHand = "Kaki Kanan",
+            marketValue = "€15.00m",
+            careerSummary = "5x Ballon d'Or, 5x Juara Liga Champions UEFA, pencetak gol terbanyak sepanjang masa dalam sepak bola internasional dan klub resmi.",
+            achievements = listOf(
+                "5x Pemenang Ballon d'Or",
+                "5x Juara Liga Champions UEFA (1x Man Utd, 4x Real Madrid)",
+                "Juara UEFA Euro 2016 & Nations League 2019 (Portugal)",
+                "Pencetak Gol Terbanyak Sepanjang Masa (>900 Gol Resmi)",
+                "Top Scorer Sepanjang Masa Liga Champions (140 Gol)"
+            ),
+            careerHistory = listOf(
+                CareerItem(teamName = "Al Nassr", startYear = "2023", endYear = "Sekarang", roleTitle = "Kapten & Striker"),
+                CareerItem(teamName = "Manchester United", startYear = "2021", endYear = "2022", roleTitle = "Striker"),
+                CareerItem(teamName = "Juventus", startYear = "2018", endYear = "2021", roleTitle = "Striker"),
+                CareerItem(teamName = "Real Madrid", startYear = "2009", endYear = "2018", roleTitle = "Legenda (450 Gol)"),
+                CareerItem(teamName = "Manchester United", startYear = "2003", endYear = "2009", roleTitle = "Winger"),
+                CareerItem(teamName = "Sporting CP", startYear = "2002", endYear = "2003", roleTitle = "Winger Muda")
+            )
         ),
         PersonProfile(
             id = "f_p6",
@@ -107,10 +179,22 @@ class PersonRepository {
             teamName = "Barcelona",
             teamLogo = "https://media.api-sports.io/football/teams/529.png",
             number = 19,
-            position = "Sayap (Winger)",
+            position = "Sayap Kanan (Right Winger)",
             height = "180 cm",
             weight = "68 kg",
-            careerSummary = "Juara Euro 2024 bersama Spanyol, pemain muda terbaik dunia, fenomena La Masia."
+            dominantFootHand = "Kaki Kiri",
+            marketValue = "€150.00m",
+            careerSummary = "Juara UEFA Euro 2024, Young Player of the Tournament, pemenang Kopa Trophy 2024, bakat terhebat La Masia abad ini.",
+            achievements = listOf(
+                "Juara UEFA Euro 2024 (Spanyol)",
+                "UEFA Euro 2024 Young Player of the Tournament",
+                "Kopa Trophy Winner 2024",
+                "Pemain Termuda Sepanjang Sejarah Euro yang Mencetak Gol"
+            ),
+            careerHistory = listOf(
+                CareerItem(teamName = "FC Barcelona", startYear = "2023", endYear = "Sekarang", roleTitle = "Winger Utama"),
+                CareerItem(teamName = "La Masia (Barcelona Youth)", startYear = "2014", endYear = "2023", roleTitle = "Akademi")
+            )
         ),
 
         // Sepak Bola - Pelatih
@@ -230,7 +314,20 @@ class PersonRepository {
             position = "Point Guard",
             height = "188 cm",
             weight = "84 kg",
-            careerSummary = "4x Juara NBA, 2x MVP, pencetak tembakan 3 poin terbanyak dalam sejarah bola basket."
+            dominantFootHand = "Tangan Kanan",
+            marketValue = "Supermax Contract",
+            careerSummary = "4x Juara NBA, 2x MVP (1x Unanimous MVP), pencetak tembakan 3 poin terbanyak dalam sejarah bola basket dunia.",
+            achievements = listOf(
+                "4x Juara NBA (2015, 2017, 2018, 2022)",
+                "2x NBA Most Valuable Player (2015, 2016)",
+                "1x NBA Finals MVP (2022)",
+                "Medali Emas Olimpiade Paris 2024 (Team USA)",
+                "Rekor Tembakan 3 Poin Terbanyak dalam Sejarah NBA (>3,700 3PM)"
+            ),
+            careerHistory = listOf(
+                CareerItem(teamName = "Golden State Warriors", startYear = "2009", endYear = "Sekarang", roleTitle = "Franchise Player"),
+                CareerItem(teamName = "Davidson Wildcats (NCAA)", startYear = "2006", endYear = "2009", roleTitle = "Point Guard")
+            )
         ),
         PersonProfile(
             id = "b_p2",
@@ -242,10 +339,24 @@ class PersonRepository {
             nationality = "USA",
             teamName = "Los Angeles Lakers",
             number = 23,
-            position = "Forward",
+            position = "Small Forward / Point Forward",
             height = "206 cm",
             weight = "113 kg",
-            careerSummary = "4x Juara NBA, 4x Finals MVP, pencetak poin terbanyak sepanjang sejarah NBA."
+            dominantFootHand = "Tangan Kanan",
+            marketValue = "Max Contract",
+            careerSummary = "4x Juara NBA, 4x Finals MVP, 4x MVP, pencetak poin terbanyak sepanjang sejarah bola basket NBA (>40,000 poin).",
+            achievements = listOf(
+                "4x Juara NBA (2x Miami Heat, 1x Cavaliers, 1x Lakers)",
+                "4x NBA Finals MVP & 4x NBA Most Valuable Player",
+                "3x Medali Emas Olimpiade (2008, 2012, 2024)",
+                "All-Time Leading Scorer dalam Sejarah NBA (>40k Poin)"
+            ),
+            careerHistory = listOf(
+                CareerItem(teamName = "Los Angeles Lakers", startYear = "2018", endYear = "Sekarang", roleTitle = "Kapten"),
+                CareerItem(teamName = "Cleveland Cavaliers", startYear = "2014", endYear = "2018", roleTitle = "Forward Utama"),
+                CareerItem(teamName = "Miami Heat", startYear = "2010", endYear = "2014", roleTitle = "Big Three"),
+                CareerItem(teamName = "Cleveland Cavaliers", startYear = "2003", endYear = "2010", roleTitle = "Rookie & Star")
+            )
         ),
         PersonProfile(
             id = "b_c1",
@@ -439,6 +550,13 @@ class PersonRepository {
 
         val combined = (onlineResults + localMatches).distinctBy { it.name.lowercase() }
         Result.success(combined.ifEmpty { localMatches })
+    }
+
+    suspend fun getPersonById(id: String): PersonProfile? = withContext(Dispatchers.IO) {
+        val local = featuredWorldwideProfiles.find { it.id == id }
+        if (local != null) return@withContext local
+        if (id.startsWith("api_c_")) return@withContext getCoachById(id)
+        null
     }
 
     suspend fun getCoachById(id: String): PersonProfile? = withContext(Dispatchers.IO) {

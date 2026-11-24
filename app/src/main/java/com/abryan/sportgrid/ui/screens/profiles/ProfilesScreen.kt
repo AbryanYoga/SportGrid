@@ -80,6 +80,7 @@ fun ProfilesScreen(
     onBack: () -> Unit,
     onNavigateToCoach: (String) -> Unit = {},
     onNavigateToClub: (Int) -> Unit = {},
+    onNavigateToPlayer: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val app = LocalContext.current.applicationContext as SportGridApp
@@ -264,8 +265,8 @@ fun ProfilesScreen(
                                                 // Pelatih navigasi ke PAGE BARU
                                                 onNavigateToCoach(profile.id)
                                             } else {
-                                                // Pemain buka popup dialog
-                                                viewModel.onProfileClicked(profile)
+                                                // Pemain navigasi ke PAGE BARU
+                                                onNavigateToPlayer(profile.id)
                                             }
                                         }
                                     )
@@ -276,14 +277,6 @@ fun ProfilesScreen(
                 }
             }
         }
-    }
-
-    // Modal Detail Dialog (KHUSUS PEMAIN)
-    state.selectedProfile?.let { profile ->
-        ProfileDetailDialog(
-            profile = profile,
-            onDismiss = viewModel::onDismissDetail
-        )
     }
 }
 
@@ -527,165 +520,5 @@ fun ClubGridCard(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun ProfileDetailDialog(
-    profile: PersonProfile,
-    onDismiss: () -> Unit
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
-            border = androidx.compose.foundation.BorderStroke(
-                1.dp,
-                MaterialTheme.colorScheme.surfaceVariant
-            ),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Large Photo
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(96.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .border(3.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                ) {
-                    if (!profile.photo.isNullOrEmpty()) {
-                        AsyncImage(
-                            model = profile.photo,
-                            contentDescription = profile.name,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(48.dp)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Name & Role
-                Text(
-                    text = profile.name,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    textAlign = TextAlign.Center
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.padding(top = 4.dp)
-                ) {
-                    val sportName = stringResource(profile.sportType.displayNameRes)
-                    Text(
-                        text = "Atlet Profesional • $sportName",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                }
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 14.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                )
-
-                // Info Grid (Usia, Kebangsaan, Nomor, Posisi, Tinggi, Berat)
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    profile.teamName?.let { team ->
-                        DetailRow(label = "Klub / Tim", value = team)
-                    }
-                    profile.nationality?.let { nat ->
-                        DetailRow(label = "Kewarganegaraan", value = nat)
-                    }
-                    profile.age?.let { age ->
-                        DetailRow(label = "Usia", value = "$age tahun")
-                    }
-                    profile.position?.let { pos ->
-                        DetailRow(label = "Posisi", value = pos)
-                    }
-                    profile.number?.let { num ->
-                        DetailRow(label = "Nomor Punggung", value = "#$num")
-                    }
-                    profile.height?.let { h ->
-                        DetailRow(label = "Tinggi Badan", value = h)
-                    }
-                    profile.weight?.let { w ->
-                        DetailRow(label = "Berat Badan", value = w)
-                    }
-                }
-
-                // Career Summary
-                if (!profile.careerSummary.isNullOrEmpty()) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.7f))
-                            .padding(12.dp)
-                    ) {
-                        Text(
-                            text = profile.careerSummary,
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                lineHeight = 16.sp
-                            )
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Close Button
-                Button(
-                    onClick = onDismiss,
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Tutup", fontWeight = FontWeight.Bold)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DetailRow(
-    label: String,
-    value: String
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
-        )
     }
 }

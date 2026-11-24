@@ -57,6 +57,7 @@ fun LeagueDetailScreen(
     leagueId: Int,
     sportSlug: String,
     onBack: () -> Unit,
+    onNavigateToMatchDetail: (Int) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: LeagueDetailViewModel = viewModel(
         factory = LeagueDetailViewModel.provideFactory(
@@ -155,7 +156,10 @@ fun LeagueDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(state.matches) { match ->
-                            MatchCard(match = match)
+                            MatchCard(
+                                match = match,
+                                onClick = { onNavigateToMatchDetail(match.id) }
+                            )
                         }
                     }
                 }
