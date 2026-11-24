@@ -1,7 +1,40 @@
 # SportGrid ⚡
 
 > **Universal Multi-Sport Live Dashboard & Intelligence**  
-> Aplikasi Android modern berbasis **Jetpack Compose**, **Material 3**, dan **API-Sports** yang menghadirkan data skor langsung (*live scores*), jadwal pertandingan, klasemen liga, serta bursa transfer pemain di 5 cabang olahraga global.
+> Aplikasi Android modern berbasis **Jetpack Compose**, **Material 3**, dan **Hybrid Multi-Source Sports API Architecture** yang menghadirkan data skor langsung (*live scores*), jadwal pertandingan, klasemen liga, serta bursa transfer pemain di 5 cabang olahraga global.
+
+---
+
+## 🌐 Arsitektur Multi-Source API (Total: 3 External APIs + 1 Smart Cache Engine)
+
+Aplikasi **SportGrid** tidak bergantung pada satu penyedia data tunggal. Dengan menerapkan **Multi-Source Data Aggregation & Failover Strategy**, aplikasi memanfaatkan keunggulan masing-masing API secara sinergis:
+
+```
+                      ┌─────────────────────────────────────────┐
+                      │          UI Layer & ViewModel           │
+                      └────────────────────┬────────────────────┘
+                                           │
+                                           ▼
+                      ┌─────────────────────────────────────────┐
+                      │        Repository Layer & Mapper        │
+                      └───────┬────────────┬────────────┬───────┘
+                              │            │            │
+            ┌─────────────────┴─┐   ┌──────┴──────┐   ┌─┴────────────────┐
+            ▼                   ▼   ▼             ▼   ▼                  ▼
+     ┌──────────────┐     ┌───────────────┐     ┌────────────────┐ ┌───────────────┐
+     │  1. ESPN API │     │ 2. API-Sports │     │3. Football-Data│ │4. Smart Cache │
+     │  (Live Score)│     │  (Transfers)  │     │   (Fallback)   │ │  (In-Memory)  │
+     └──────────────┘     └───────────────┘     └────────────────┘ └───────────────┘
+```
+
+### Rincian API yang Digunakan:
+
+| No | Nama API | Endpoint & Protokol | Peran & Fokus Utama | Keunggulan Spesifik |
+|:---:|:---|:---|:---|:---|
+| **1** | **ESPN Public Scoreboard API** | `site.api.espn.com` (REST / JSON) | **Live Scores & Real-Time Clock**<br>Skor pertandingan langsung, status babak/kuarter, dan jadwal hari ini. | **100% Bebas Kuota (Unlimited)**, **Zero-Key (Keyless)**, update real-time detik-per-detik tanpa membebani limit kuota harian. |
+| **2** | **API-Sports (Football & Games)** | `api-sports.io` (v3 Football & v1 Games) | **Bursa Transfer & Foto Pemain**<br>Riwayat perpindahan pemain, foto resmi atlet (*headshots CDN*), dan klasemen liga. | Data transfer terlengkap di dunia, logo klub HD, dan coverage 5 cabang olahraga global. |
+| **3** | **Football-Data.org API** | `api.football-data.org` (v4 REST) | **Kompetisi Eropa & Jadwal Cadangan**<br>Data pertandingan alternatif liga-liga sepak bola Eropa. | Standar open-source paling populer di GitHub, struktur data terstandarisasi, failover terpercaya. |
+| **4** | **Smart Local Cache Engine** | Internal In-Memory (`MemoryCache.kt`) | **Zero-Latency Navigation & Offline Fallback**<br>Manajemen TTL (60 detik – 24 jam) dan data demo cerdas dinamis. | Menjamin aplikasi tidak pernah mengalami layar kosong (*blank screen*) dan navigasi antar-tab instan tanpa lag. |
 
 ---
 
@@ -10,8 +43,9 @@
 - **Nama Aplikasi:** SportGrid
 - **Package Name:** `com.abryan.sportgrid`
 - **Target OS:** Android 8.0 (API 26) hingga Android 16 (API 37)
-- **Teknologi Utama:** Kotlin, Jetpack Compose, Material 3, Coroutines & Flow, Retrofit 2, Kotlinx Serialization, Coil 3, DataStore Preferences.
-- **Desain & Identitas:** *Electric Volt* (`#CCFF00`) di atas *Carbon Dark* (`#0C0F12`), Velocity Grid Monogram "S", Floating Dock Navigation Bar.
+- **Bahasa & Framework:** Kotlin 2.0, Jetpack Compose, Material 3
+- **Komponen Inti:** Coroutines & Flow, Retrofit 2, OkHttp 3, Kotlinx Serialization, Coil 3, DataStore Preferences, Navigation Compose
+- **Desain & Identitas:** *Electric Volt* (`#CCFF00`) di atas *Carbon Dark* (`#0C0F12`), Velocity Grid Monogram "S", Floating Dock Navigation Bar
 
 ---
 
@@ -26,9 +60,9 @@
 
 2. **Skor Langsung & Kalender Jadwal (Live Scores)**
    - Strip pemilih tanggal 7 hari (*horizontal date strip*).
-   - Filter cepat antar cabang olahraga.
-   - Mekanisme pembaruan otomatis (*auto-refresh*) berkala.
-   - Mode data cadangan cerdas (*smart fallback*) apabila kuota API harian habis atau koneksi terputus.
+   - Pembaruan otomatis (*auto-refresh*) berkala setiap 60 detik tanpa khawatir kehabisan kuota (ditenagai ESPN API).
+   - Filter instan antar cabang olahraga.
+   - Failover cerdas ke data jadwal hari ini saat jam jeda pertandingan.
 
 3. **Eksplorasi Liga & Klasemen (Leagues & Standings)**
    - Daftar liga-liga top dunia (Premier League, La Liga, Serie A, NBA, MLB, dll.) dalam tampilan *Adaptive Grid*.
@@ -36,7 +70,7 @@
    - Halaman detail liga komprehensif: Tab **Jadwal & Skor** (*Fixtures*) dan Tab **Klasemen** (*Standings*) lengkap dengan poin, selisih gol, dan rekor menang/seri/kalah.
 
 4. **Bursa Transfer Pemain (Transfer Market)**
-   - Riwayat perpindahan pemain bintang dunia (foto pemain, klub asal, klub tujuan, tanggal transfer, dan tipe/biaya transfer).
+   - Riwayat perpindahan pemain bintang dunia (foto pemain, klub asal, klub tujuan, tanggal transfer, dan biaya transfer).
    - Filter klub-klub raksasa Eropa (Real Madrid, Arsenal, Manchester City, Barcelona, Bayern Munich, PSG, Juventus, Liverpool).
    - Dukungan pencarian klub kustom.
 
@@ -47,60 +81,45 @@
 
 ---
 
-## 🏗️ Arsitektur & Pola Desain
-
-Aplikasi dibangun mengikuti standar **Modern Android Architecture (MVVM + Repository Pattern)**:
+## 🏗️ Struktur Arsitektur Direktori
 
 ```
 app/src/main/java/com/abryan/sportgrid/
 ├── data/
-│   ├── api/          # Retrofit Service (FootballApiService, GamesApiService, ApiClientFactory)
-│   ├── dto/          # Data Transfer Objects (FootballDto, GamesDto)
-│   ├── local/        # In-Memory Cache (MemoryCache) & Smart Fallback (DemoFallbackData)
-│   ├── mapper/       # Mapper DTO ke Model Domain (SportMapper)
-│   ├── model/        # Model Domain (Match, League, Team, Transfer, SportType)
-│   ├── repository/   # Repository Layer (MatchRepository, LeagueRepository, TransferRepository)
-│   └── settings/     # DataStore Preferences (SettingsDataStore)
-├── di/               # Manual Dependency Injection Container (SportGridContainer)
+│   ├── local/          # MemoryCache (TTL), SettingsDataStore, DemoFallbackData
+│   ├── mapper/         # SportMapper (Konversi DTO ke Domain Model seragam)
+│   ├── remote/
+│   │   ├── api/        # Retrofit Interfaces: EspnApiService, FootballDataApiService,
+│   │   │               # FootballApiService, GamesApiService, ApiClientFactory
+│   │   └── dto/        # DTO: EspnDto, FootballDataDto, FootballDto, GamesDto
+│   └── repository/     # MatchRepository (Multi-Source), LeagueRepository, TransferRepository
+├── di/                 # SportGridContainer (Manual Dependency Injection)
+├── domain/
+│   └── model/          # Domain Models: Match, League, Standing, Transfer, SportType
 ├── ui/
-│   ├── components/   # Reusable UI Cards (MatchCard, HeroLiveCard, LeagueCard, TransferCard, dll.)
-│   ├── navigation/   # Navigation Compose Host & Floating Dock Bottom Bar
-│   ├── screens/      # Screen & ViewModel (Home, Live, Leagues, Transfers, Settings)
-│   └── theme/        # Material 3 Theme, Color Scheme (Electric Volt), Typography, Spacing
-└── SportGridApp.kt   # Application Class (Inisialisasi Container & DataStore)
+│   ├── components/     # MatchCard, HeroLiveCard, LeagueCard, TransferCard, BottomNavBar
+│   ├── navigation/     # NavDestination & SportGridNavHost
+│   ├── screens/        # Screen & ViewModel (Home, Live, Leagues, Transfers, Settings)
+│   └── theme/          # Color, Theme, Typography, Spacing
+└── SportGridApp.kt     # Application Initialization & DI Setup
 ```
-
-### Penanganan Komponen Kurikulum RPL (Rubrik Penilaian)
-- **RecyclerView / List Komponen:** Menggunakan komponen modern `LazyColumn`, `LazyRow`, dan `LazyVerticalGrid` dengan *key-based items* dan *item card composables* reusable yang efisien dalam pemakaian memori.
-- **Konsumsi API:** Menggunakan `Retrofit 2` dengan `kotlinx.serialization.json` dan interceptor header autentikasi (`x-apisports-key`).
-- **Manajemen Cache:** Repository dilengkapi dengan `MemoryCache<T>` ber-TTL (*Time-To-Live*) 5–15 menit untuk menghemat kuota harian API-Sports (100 request/hari pada free tier).
 
 ---
 
-## 🚀 Panduan Setup & Konfigurasi API Key
+## 🚀 Panduan Setup & Konfigurasi API
 
-Aplikasi ini menggunakan layanan dari [API-Sports](https://api-sports.io/).
+Aplikasi telah siap dijalankan langsung (*out-of-the-box*) berkat ketersediaan **ESPN Public API** dan **Football-Data.org API**.
 
-1. **Dapatkan API Key:**
-   - Daftar akun gratis di [dashboard.api-sports.io](https://dashboard.api-sports.io/).
-   - Salin **API Key** Anda dari dashboard.
-
-2. **Pasang API Key di Proyek:**
-   - Buka file `local.properties` di root folder proyek (file ini aman dan tidak akan ter-push ke repository Git).
-   - Tambahkan baris berikut:
-     ```properties
-     API_SPORTS_KEY=masukkan_api_key_anda_disini
-     ```
-
-3. **Build & Jalankan Aplikasi:**
-   - Buka project di Android Studio.
-   - Sambungkan HP Android atau jalankan Emulator.
-   - Klik tombol **Run 'app'** (`Shift + F10`) atau jalankan perintah:
-     ```powershell
-     .\gradlew.bat installDebug
-     ```
-
-> **Catatan:** Apabila API Key belum diatur atau kuota harian telah habis, aplikasi secara otomatis beralih ke **Smart Demo Fallback Data**, sehingga seluruh tampilan UI tetap terisi data representatif dan tidak akan mengalami layar kosong (*blank screen*).
+Untuk mengaktifkan fitur data mendalam dari **API-Sports**:
+1. Dapatkan API Key gratis di [dashboard.api-sports.io](https://dashboard.api-sports.io/).
+2. Buka file `local.properties` di root folder proyek:
+   ```properties
+   API_SPORTS_KEY=masukkan_api_key_anda_disini
+   ```
+3. Build dan jalankan aplikasi:
+   ```powershell
+   .\gradlew.bat assembleDebug
+   ```
 
 ---
 
@@ -116,9 +135,6 @@ Aplikasi ini menggunakan layanan dari [API-Sports](https://api-sports.io/).
 
 ---
 
-## 👤 Pengembang Proyek
+## 📄 Lisensi & Standar Rekayasa Perangkat Lunak
 
-- **Nama:** Abryan Yoga
-- **Institusi:** SMK Negeri 6 Surakarta
-- **Kompetensi Keahlian:** Rekayasa Perangkat Lunak (RPL)
-- **Mata Pelajaran:** Pemrograman Perangkat Bergerak (Mobile Application Development)
+Proyek ini dibangun mengikuti prinsip **Clean Architecture**, **MVVM**, **SOLID Principles**, serta standar modern **Android Jetpack**. Dilindungi di bawah lisensi terbuka untuk keperluan edukasi dan evaluasi teknis.
