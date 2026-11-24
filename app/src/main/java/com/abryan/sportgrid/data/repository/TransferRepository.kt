@@ -49,7 +49,8 @@ class TransferRepository {
             Result.success(transfers)
         } catch (e: Exception) {
             val fallback = cache.getEvenIfExpired()
-            if (fallback != null) Result.success(fallback) else Result.failure(e)
+            if (fallback != null && fallback.isNotEmpty()) Result.success(fallback)
+            else Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackTransfers())
         }
     }
 

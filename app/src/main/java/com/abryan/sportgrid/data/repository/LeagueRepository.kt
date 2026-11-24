@@ -52,10 +52,12 @@ class LeagueRepository {
             }
 
             cache.put(leagues)
-            Result.success(leagues)
+            if (leagues.isNotEmpty()) Result.success(leagues)
+            else Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackLeagues(sportType))
         } catch (e: Exception) {
             val fallback = cache.getEvenIfExpired()
-            if (fallback != null) Result.success(fallback) else Result.failure(e)
+            if (fallback != null && fallback.isNotEmpty()) Result.success(fallback)
+            else Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackLeagues(sportType))
         }
     }
 

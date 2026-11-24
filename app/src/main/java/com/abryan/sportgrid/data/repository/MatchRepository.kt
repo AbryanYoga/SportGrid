@@ -41,10 +41,12 @@ class MatchRepository {
                 response.response.map { it.toDomain(sportType) }
             }
             cache.put(matches)
-            Result.success(matches)
+            if (matches.isNotEmpty()) Result.success(matches)
+            else Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackLiveMatches(sportType))
         } catch (e: Exception) {
             val fallback = cache.getEvenIfExpired()
-            if (fallback != null) Result.success(fallback) else Result.failure(e)
+            if (fallback != null && fallback.isNotEmpty()) Result.success(fallback)
+            else Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackLiveMatches(sportType))
         }
     }
 
@@ -69,10 +71,12 @@ class MatchRepository {
                 response.response.map { it.toDomain(sportType) }
             }
             cache.put(matches)
-            Result.success(matches)
+            if (matches.isNotEmpty()) Result.success(matches)
+            else Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackLiveMatches(sportType))
         } catch (e: Exception) {
             val fallback = cache.getEvenIfExpired()
-            if (fallback != null) Result.success(fallback) else Result.failure(e)
+            if (fallback != null && fallback.isNotEmpty()) Result.success(fallback)
+            else Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackLiveMatches(sportType))
         }
     }
 
