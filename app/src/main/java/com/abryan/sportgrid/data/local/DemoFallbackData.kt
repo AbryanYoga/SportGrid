@@ -9,6 +9,9 @@ import com.abryan.sportgrid.domain.model.Transfer
 
 object DemoFallbackData {
 
+    private val todayDate: String
+        get() = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date())
+
     fun getFallbackLeagues(sportType: SportType): List<League> {
         return when (sportType) {
             SportType.FOOTBALL -> listOf(
@@ -55,7 +58,7 @@ object DemoFallbackData {
                     status = MatchStatus.LIVE,
                     statusText = "68'",
                     elapsedMinutes = 68,
-                    matchDate = "2026-11-24"
+                    matchDate = todayDate
                 )
             )
             SportType.BASKETBALL -> listOf(
@@ -73,7 +76,7 @@ object DemoFallbackData {
                     status = MatchStatus.LIVE,
                     statusText = "3RD 6:02",
                     elapsedMinutes = 30,
-                    matchDate = "2026-11-24"
+                    matchDate = todayDate
                 ),
                 Match(
                     id = 2002,
@@ -89,7 +92,7 @@ object DemoFallbackData {
                     status = MatchStatus.LIVE,
                     statusText = "3RD 9:24",
                     elapsedMinutes = 33,
-                    matchDate = "2026-11-24"
+                    matchDate = todayDate
                 )
             )
             else -> emptyList()
@@ -113,7 +116,7 @@ object DemoFallbackData {
                     status = MatchStatus.FINISHED,
                     statusText = "FT",
                     elapsedMinutes = 90,
-                    matchDate = "2026-11-24"
+                    matchDate = todayDate
                 ),
                 Match(
                     id = 1003,
@@ -129,7 +132,7 @@ object DemoFallbackData {
                     status = MatchStatus.NOT_STARTED,
                     statusText = "20:45",
                     elapsedMinutes = null,
-                    matchDate = "2026-11-24"
+                    matchDate = todayDate
                 )
             )
             SportType.BASKETBALL -> listOf(
@@ -147,7 +150,7 @@ object DemoFallbackData {
                     status = MatchStatus.FINISHED,
                     statusText = "FT",
                     elapsedMinutes = 48,
-                    matchDate = "2026-11-24"
+                    matchDate = todayDate
                 )
             )
             SportType.VOLLEYBALL -> listOf(
@@ -165,7 +168,7 @@ object DemoFallbackData {
                     status = MatchStatus.FINISHED,
                     statusText = "FT",
                     elapsedMinutes = null,
-                    matchDate = "2026-11-24"
+                    matchDate = todayDate
                 )
             )
             SportType.BASEBALL -> listOf(
@@ -183,7 +186,7 @@ object DemoFallbackData {
                     status = MatchStatus.FINISHED,
                     statusText = "FT",
                     elapsedMinutes = null,
-                    matchDate = "2026-11-24"
+                    matchDate = todayDate
                 )
             )
             SportType.HOCKEY -> listOf(
@@ -201,7 +204,7 @@ object DemoFallbackData {
                     status = MatchStatus.FINISHED,
                     statusText = "FT",
                     elapsedMinutes = null,
-                    matchDate = "2026-11-24"
+                    matchDate = todayDate
                 )
             )
         }
