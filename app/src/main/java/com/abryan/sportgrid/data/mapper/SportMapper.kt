@@ -123,10 +123,12 @@ fun GamesStandingItemDto.toDomain(): Standing {
 
 fun FootballTransferItemDto.toDomainList(): List<Transfer> {
     val pName = player?.name ?: "Player"
+    val pPhoto = player?.id?.let { "https://media.api-sports.io/football/players/$it.png" }
     return transfers.mapIndexed { idx, t ->
         Transfer(
             id = "${player?.id ?: idx}_${t.date ?: idx}",
             playerName = pName,
+            playerPhoto = pPhoto,
             fromTeamName = t.teams?.`out`?.name ?: "Previous Club",
             fromTeamLogo = t.teams?.`out`?.logo,
             toTeamName = t.teams?.`in`?.name ?: "New Club",

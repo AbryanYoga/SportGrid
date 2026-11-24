@@ -83,11 +83,11 @@ fun HomeScreen(
 
     val athletes = remember {
         listOf(
-            FeaturedAthlete("Haliburton"),
-            FeaturedAthlete("A. Wilson"),
-            FeaturedAthlete("J. Williams"),
-            FeaturedAthlete("S. Curry"),
-            FeaturedAthlete("C. Gray")
+            FeaturedAthlete("Haliburton", "https://media.api-sports.io/basketball/players/1879.png"),
+            FeaturedAthlete("S. Curry", "https://media.api-sports.io/basketball/players/124.png"),
+            FeaturedAthlete("Mbappé", "https://media.api-sports.io/football/players/278.png"),
+            FeaturedAthlete("Bellingham", "https://media.api-sports.io/football/players/152982.png"),
+            FeaturedAthlete("Haaland", "https://media.api-sports.io/football/players/1100.png")
         )
     }
 
@@ -191,17 +191,26 @@ fun HomeScreen(
                                 Box(
                                     contentAlignment = Alignment.Center,
                                     modifier = Modifier
-                                        .size(52.dp)
+                                        .size(54.dp)
                                         .clip(CircleShape)
                                         .border(2.dp, VoltGreen, CircleShape)
                                         .background(MaterialTheme.colorScheme.surfaceVariant)
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Person,
-                                        contentDescription = athlete.name,
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(28.dp)
-                                    )
+                                    if (!athlete.avatarUrl.isNullOrBlank()) {
+                                        AsyncImage(
+                                            model = athlete.avatarUrl,
+                                            contentDescription = athlete.name,
+                                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Default.Person,
+                                            contentDescription = athlete.name,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(28.dp)
+                                        )
+                                    }
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(

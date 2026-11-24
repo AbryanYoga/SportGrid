@@ -212,6 +212,7 @@ object DemoFallbackData {
             Transfer(
                 id = "t1",
                 playerName = "Kylian Mbappé",
+                playerPhoto = "https://media.api-sports.io/football/players/278.png",
                 fromTeamName = "Paris Saint-Germain",
                 fromTeamLogo = "https://media.api-sports.io/football/teams/85.png",
                 toTeamName = "Real Madrid",
@@ -222,8 +223,9 @@ object DemoFallbackData {
             Transfer(
                 id = "t2",
                 playerName = "Jude Bellingham",
+                playerPhoto = "https://media.api-sports.io/football/players/152982.png",
                 fromTeamName = "Borussia Dortmund",
-                fromTeamLogo = null,
+                fromTeamLogo = "https://media.api-sports.io/football/teams/165.png",
                 toTeamName = "Real Madrid",
                 toTeamLogo = "https://media.api-sports.io/football/teams/541.png",
                 type = "€103M",
@@ -232,8 +234,9 @@ object DemoFallbackData {
             Transfer(
                 id = "t3",
                 playerName = "Declan Rice",
+                playerPhoto = "https://media.api-sports.io/football/players/2936.png",
                 fromTeamName = "West Ham United",
-                fromTeamLogo = null,
+                fromTeamLogo = "https://media.api-sports.io/football/teams/48.png",
                 toTeamName = "Arsenal",
                 toTeamLogo = "https://media.api-sports.io/football/teams/42.png",
                 type = "€116M",
