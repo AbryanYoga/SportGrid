@@ -27,6 +27,8 @@ import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SportsScore
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,9 +45,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +67,7 @@ import com.abryan.sportgrid.domain.model.CareerItem
 import com.abryan.sportgrid.domain.model.PersonProfile
 import com.abryan.sportgrid.ui.components.ErrorState
 import com.abryan.sportgrid.ui.theme.VoltGreen
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,8 +78,12 @@ fun PlayerDetailScreen(
     modifier: Modifier = Modifier
 ) {
     val app = LocalContext.current.applicationContext as SportGridApp
+    val coroutineScope = rememberCoroutineScope()
     var player by remember { mutableStateOf<PersonProfile?>(null) }
     var isLoading by remember { mutableStateOf(true) }
+
+    val favoritePlayers by app.container.favoritesDataStore.favoritePlayers.collectAsState(initial = emptySet())
+    val isFavorite = favoritePlayers.contains(playerId)
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -100,6 +109,19 @@ fun PlayerDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        coroutineScope.launch {
+                            app.container.favoritesDataStore.toggleFavoritePlayer(playerId)
+                        }
+                    }) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
+                            contentDescription = "Favorit",
+                            tint = if (isFavorite) VoltGreen else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

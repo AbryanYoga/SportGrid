@@ -22,11 +22,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,10 +38,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,6 +74,7 @@ data class CalendarDayItem(
     val offset: Int
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiveScreen(
     modifier: Modifier = Modifier,
@@ -74,6 +84,47 @@ fun LiveScreen(
     onMatchClick: (Int) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = System.currentTimeMillis()
+    )
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDatePicker = false
+                        datePickerState.selectedDateMillis?.let { selectedMillis ->
+                            val calSelected = Calendar.getInstance().apply { timeInMillis = selectedMillis }
+                            val calToday = Calendar.getInstance().apply {
+                                set(Calendar.HOUR_OF_DAY, 0)
+                                set(Calendar.MINUTE, 0)
+                                set(Calendar.SECOND, 0)
+                                set(Calendar.MILLISECOND, 0)
+                            }
+                            calSelected.set(Calendar.HOUR_OF_DAY, 0)
+                            calSelected.set(Calendar.MINUTE, 0)
+                            calSelected.set(Calendar.SECOND, 0)
+                            calSelected.set(Calendar.MILLISECOND, 0)
+                            val diffDays = ((calSelected.timeInMillis - calToday.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
+                            viewModel.onDateSelected(diffDays)
+                        }
+                    }
+                ) {
+                    Text("Terapkan", color = VoltGreen, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Batal")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 
     // 7-day horizontal calendar strip (3 days past, today, 3 days future)
     val calendarDays = remember {
@@ -111,10 +162,15 @@ fun LiveScreen(
         color = MaterialTheme.colorScheme.background,
         modifier = modifier.fillMaxSize()
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 32.dp)
+        PullToRefreshBox(
+            isRefreshing = state.isLoading,
+            onRefresh = { viewModel.refresh() },
+            modifier = Modifier.fillMaxSize()
         ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 32.dp)
+            ) {
             // Header: "SCORES" + Controls (from reference image)
             item {
                 Row(
@@ -183,38 +239,61 @@ fun LiveScreen(
                 Spacer(modifier = Modifier.height(14.dp))
             }
 
-            // Date Row (From reference image: Sat 6, Sun 7 active Volt pill, Mon 8...)
+            // Date Row (Calendar Strip + Custom Date Picker)
             item {
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.padding(bottom = 14.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(calendarDays) { day ->
-                        val isSelected = day.offset == state.selectedDateOffset
+                    Box(
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 8.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .clickable { showDatePicker = true }
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CalendarMonth,
+                            contentDescription = "Pilih Tanggal Bebas",
+                            tint = VoltGreen,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
 
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(
-                                    if (isSelected) VoltGreen else MaterialTheme.colorScheme.surface
+                    LazyRow(
+                        contentPadding = PaddingValues(end = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        items(calendarDays) { day ->
+                            val isSelected = day.offset == state.selectedDateOffset
+
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(
+                                        if (isSelected) VoltGreen else MaterialTheme.colorScheme.surface
+                                    )
+                                    .clickable { viewModel.onDateSelected(day.offset) }
+                                    .padding(horizontal = 14.dp, vertical = 10.dp)
+                            ) {
+                                Text(
+                                    text = day.dayName,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (isSelected) Color.Black else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                .clickable { viewModel.onDateSelected(day.offset) }
-                                .padding(horizontal = 14.dp, vertical = 10.dp)
-                        ) {
-                            Text(
-                                text = day.dayName,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = if (isSelected) Color.Black else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = day.dayNumber,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isSelected) Color.Black else MaterialTheme.colorScheme.onSurface
-                            )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = day.dayNumber,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isSelected) Color.Black else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
                 }
@@ -275,6 +354,7 @@ fun LiveScreen(
                         )
                     }
                 }
+            }
             }
         }
     }

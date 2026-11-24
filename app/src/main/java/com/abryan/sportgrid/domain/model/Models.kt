@@ -126,6 +126,26 @@ data class MatchEvent(
     val detail: String? = null
 )
 
+data class H2HMatch(
+    val date: String,
+    val homeTeam: String,
+    val awayTeam: String,
+    val homeScore: Int,
+    val awayScore: Int,
+    val competition: String
+)
+
+data class H2HSummary(
+    val totalPlayed: Int,
+    val homeWins: Int,
+    val draws: Int,
+    val awayWins: Int,
+    val winProbabilityHome: Int,
+    val winProbabilityDraw: Int,
+    val winProbabilityAway: Int,
+    val recentMatches: List<H2HMatch>
+)
+
 data class MatchDetailData(
     val match: Match,
     val homeTactics: TeamTactics,
@@ -133,7 +153,9 @@ data class MatchDetailData(
     val statistics: List<MatchStatItem>,
     val events: List<MatchEvent> = emptyList(),
     val stadium: String? = null,
-    val referee: String? = null
+    val referee: String? = null,
+    val h2hSummary: H2HSummary? = null,
+    val momentumPoints: List<Float> = emptyList()
 )
 
 data class ClubBio(

@@ -82,15 +82,21 @@ Aplikasi **SportGrid** tidak bergantung pada satu penyedia data tunggal. Dengan 
    - **Bio Data Resmi Klub & Presiden Klub (`ClubDetailScreen`):** Profil mendalam klub dunia menampilkan **Presiden/Pemilik Klub** (Florentino Pérez, Joan Laporta, Stan Kroenke, Khaldoon Al Mubarak, Herbert Hainer, Nasser Al-Khelaifi, dll.), Pelatih Kepala, Foto & Kapasitas Stadion Utama, Lemari Trofi, Sejarah Klub, dan tautan situs resmi.
 
 6. **Analisis Taktik, Formasi & Statistik Laga (`MatchDetailScreen`)**
-   - **Taktik & Formasi Tim:** Menampilkan formasi kedua tim (misal: 4-3-3 vs 4-2-3-1), nama pelatih kepala, filosofi pendekatan permainan, visual lapangan taktik (*Pitch Formation Board*), dan daftar starting 11 pemain lengkap beserta nomor punggung.
+   - **Taktik & Formasi Tim Interaktif:** Menampilkan formasi kedua tim (misal: 4-3-3 vs 4-2-3-1), nama pelatih kepala, filosofi pendekatan permainan, visual lapangan taktik interaktif (*Pitch Formation Board*), di mana **setiap nomor & nama pemain dapat diklik langsung untuk membuka halaman biodata lengkapnya**.
+   - **Head-to-Head (H2H) & Momentum Tekanan Laga:** Tab H2H menyajikan histori 5 bentrokan terakhir kedua tim, rasio probabilitas menang/seri/kalah, serta grafik fluktuasi momentum serangan laga (*Match Pressure Momentum*).
    - **Statistik Komparasi Mendalam:** Grafik batang komparasi interaktif untuk penguasaan bola (*Possession %*), total tembakan (*Total Shots*), tembakan tepat sasaran (*Shots on Target*), akurasi operan (*Passing Accuracy*), pelanggaran (*Fouls*), tendangan sudut (*Corner Kicks*), kartu kuning & merah, *Offsides*, dan penyelamatan kiper (*Saves*).
    - **Linimasa Pertandingan:** Kronologi menit demi menit peristiwa gol, kartu wasit, dan pergantian pemain.
 
-7. **Optimasi Mode Landscape & Animasi Fluid GSAP**
+7. **Sistem Favorit Persisten & Gestur Cerdas Pengguna**
+   - **Bookmark & Pin Favorit Persisten (`FavoritesDataStore`):** Pengguna dapat memfavoritkan klub, pemain, maupun laga dengan tombol bintang (⭐). Data tersimpan persisten secara asinkron di DataStore dan langsung disematkan pada baris "PIN & FAVORIT SAYA" di Beranda untuk akses cepat satu kali sentuh.
+   - **Gestur *Pull-to-Refresh* (Swipe-Down):** Memperbarui data live score, klasemen, jadwal, dan bursa transfer secara instan cukup dengan menarik layar ke bawah di Beranda maupun layar Skor Langsung.
+   - **Pemilih Tanggal Bebas (*Custom Date Picker*):** Ikon kalender di layar Skor Langsung membuka dialog kalender Material 3 untuk melompat ke jadwal pertandingan tanggal berapa pun di masa lalu maupun masa depan.
+
+8. **Optimasi Mode Landscape & Animasi Fluid GSAP**
    - **Tampilan Landscape Responsif (Dual-Column Dashboard):** Di mode horizontal, tata letak otomatis membagi layar menjadi 2 kolom (Kolom Kiri: *Athlete Spotlight*, *Hero Live Match*, dan *Banner*; Kolom Kanan: *Quick Explore*, *Sport Chips*, *Today's Fixtures*, dan *Transfers*) dengan *floating bottom bar* yang ramping sehingga layar tidak terasa sempit.
    - **Animasi Fisika Jetpack Compose (GSAP-Style):** Menggunakan *physics-based spring motion* untuk transisi sentuhan (*bouncy press*), *continuous living radar glow* pada kartu pertandingan langsung, serta efek *staggered spring entrance*.
 
-8. **Pengaturan Tema & Multi-Bahasa (Settings)**
+9. **Pengaturan Tema & Multi-Bahasa (Settings)**
    - **Mode Tema:** Mendukung *Carbon Dark* (Gelap), *Light* (Terang), dan *Ikuti Sistem*.
    - **Bahasa Aplikasi (Per-App Language):** Bahasa Indonesia dan English (US) dengan pergantian dinamis tanpa perlu restart ponsel.
    - Konfigurasi status API dan informasi cache.

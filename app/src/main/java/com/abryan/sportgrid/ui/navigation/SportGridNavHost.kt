@@ -100,6 +100,9 @@ fun SportGridAppShell(
                     },
                     onNavigateToMatchDetail = { matchId ->
                         navController.navigate("match_detail/$matchId")
+                    },
+                    onNavigateToClub = { clubId ->
+                        navController.navigate("club_detail/$clubId")
                     }
                 )
             }
@@ -167,6 +170,9 @@ fun SportGridAppShell(
                     },
                     onNavigateToClub = { clubId ->
                         navController.navigate("club_detail/$clubId")
+                    },
+                    onNavigateToPlayer = { playerId ->
+                        navController.navigate("player_detail/$playerId")
                     }
                 )
             }

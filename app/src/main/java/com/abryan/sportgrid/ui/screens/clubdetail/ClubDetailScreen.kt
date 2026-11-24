@@ -34,6 +34,8 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Stadium
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -52,10 +54,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -83,6 +88,9 @@ fun ClubDetailScreen(
 ) {
     val app = LocalContext.current.applicationContext as SportGridApp
     val context = LocalContext.current
+    val favoriteClubs by app.container.favoritesDataStore.favoriteClubs.collectAsState(initial = emptySet())
+    val isFavorite = favoriteClubs.contains(clubId.toString())
+    val scope = rememberCoroutineScope()
     var club by remember { mutableStateOf<ClubBio?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -110,6 +118,21 @@ fun ClubDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            scope.launch {
+                                app.container.favoritesDataStore.toggleFavoriteClub(clubId)
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
+                            contentDescription = if (isFavorite) "Hapus dari Favorit" else "Tambah ke Favorit",
+                            tint = if (isFavorite) VoltGreen else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

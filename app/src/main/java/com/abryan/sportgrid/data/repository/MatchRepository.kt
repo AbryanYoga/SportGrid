@@ -3,6 +3,8 @@ package com.abryan.sportgrid.data.repository
 import com.abryan.sportgrid.data.mapper.toDomain
 import com.abryan.sportgrid.data.remote.api.ApiClientFactory
 import com.abryan.sportgrid.data.remote.dto.toDomain
+import com.abryan.sportgrid.domain.model.H2HMatch
+import com.abryan.sportgrid.domain.model.H2HSummary
 import com.abryan.sportgrid.domain.model.LineupPlayer
 import com.abryan.sportgrid.domain.model.Match
 import com.abryan.sportgrid.domain.model.MatchDetailData
@@ -305,6 +307,29 @@ class MatchRepository {
             MatchEvent(82, "CARD", "Iñigo Martínez", false, "Ditarik wasit karena protes")
         )
 
+        val h2h = H2HSummary(
+            totalPlayed = 32,
+            homeWins = 14,
+            draws = 8,
+            awayWins = 10,
+            winProbabilityHome = 46,
+            winProbabilityDraw = 24,
+            winProbabilityAway = 30,
+            recentMatches = listOf(
+                H2HMatch("2024-10-26", homeName, awayName, 0, 4, "La Liga Spanyol"),
+                H2HMatch("2024-04-21", homeName, awayName, 3, 2, "La Liga Spanyol"),
+                H2HMatch("2024-01-14", homeName, awayName, 4, 1, "Supercopa de España"),
+                H2HMatch("2023-10-28", awayName, homeName, 1, 2, "La Liga Spanyol"),
+                H2HMatch("2023-04-05", awayName, homeName, 0, 4, "Copa del Rey")
+            )
+        )
+
+        // Momentum ayunan penyerangan menit ke menit (-1.0f away maks s/d +1.0f home maks)
+        val momentum = listOf(
+            0.15f, 0.40f, 0.65f, 0.30f, -0.20f, -0.45f, 0.10f, 0.70f, 0.50f,
+            -0.35f, -0.60f, -0.20f, 0.25f, 0.55f, 0.80f, 0.40f, -0.30f, 0.20f
+        )
+
         MatchDetailData(
             match = foundMatch,
             homeTactics = TeamTactics(
@@ -322,7 +347,9 @@ class MatchRepository {
             statistics = stats,
             events = events,
             stadium = "Estadio Santiago Bernabéu, Madrid",
-            referee = "Szymon Marciniak (Wasit FIFA)"
+            referee = "Szymon Marciniak (Wasit FIFA)",
+            h2hSummary = h2h,
+            momentumPoints = momentum
         )
     }
 }

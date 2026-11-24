@@ -39,14 +39,17 @@ import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -61,6 +64,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -71,6 +75,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.abryan.sportgrid.R
+import com.abryan.sportgrid.SportGridApp
 import com.abryan.sportgrid.domain.model.Match
 import com.abryan.sportgrid.ui.components.EmptyState
 import com.abryan.sportgrid.ui.components.ErrorState
@@ -100,6 +105,7 @@ fun Modifier.springBounceClick(onClick: () -> Unit): Modifier = this.pointerInpu
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -110,8 +116,15 @@ fun HomeScreen(
     onNavigateToTransfers: () -> Unit = {},
     onNavigateToProfiles: () -> Unit = {},
     onNavigateToPlayerDetail: (String) -> Unit = {},
-    onNavigateToMatchDetail: (Int) -> Unit = {}
+    onNavigateToMatchDetail: (Int) -> Unit = {},
+    onNavigateToClub: (Int) -> Unit = {}
 ) {
+    val app = LocalContext.current.applicationContext as SportGridApp
+    val favoriteClubs by app.container.favoritesDataStore.favoriteClubs.collectAsState(initial = emptySet())
+    val favoritePlayers by app.container.favoritesDataStore.favoritePlayers.collectAsState(initial = emptySet())
+    val allClubs = remember { app.container.clubRepository.topWorldClubs }
+    val allPersons = remember { app.container.personRepository.featuredWorldwideProfiles }
+
     val state by viewModel.uiState.collectAsState()
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -161,34 +174,39 @@ fun HomeScreen(
         color = MaterialTheme.colorScheme.background,
         modifier = modifier.fillMaxSize()
     ) {
-        if (state.isLoading && state.popularLeagues.isEmpty() && state.todayMatches.isEmpty()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                ShimmerCard(height = 60)
-                ShimmerCard(height = 40)
-                ShimmerCard(height = 180)
-                ShimmerCard(height = 120)
-                ShimmerCard(height = 120)
-            }
-        } else if (state.errorMessageRes != null && state.popularLeagues.isEmpty() && state.todayMatches.isEmpty()) {
-            ErrorState(
-                message = stringResource(state.errorMessageRes ?: R.string.state_error_generic),
-                onRetry = { viewModel.refresh() }
-            )
-        } else {
-            // Header Top Bar
-            Column(modifier = Modifier.fillMaxSize()) {
-                HomeHeader(
-                    onRefresh = { viewModel.refresh() },
-                    onNavigateToProfiles = onNavigateToProfiles,
-                    isLandscape = isLandscape
+        PullToRefreshBox(
+            isRefreshing = state.isLoading,
+            onRefresh = { viewModel.refresh() },
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (state.isLoading && state.popularLeagues.isEmpty() && state.todayMatches.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    ShimmerCard(height = 60)
+                    ShimmerCard(height = 40)
+                    ShimmerCard(height = 180)
+                    ShimmerCard(height = 120)
+                    ShimmerCard(height = 120)
+                }
+            } else if (state.errorMessageRes != null && state.popularLeagues.isEmpty() && state.todayMatches.isEmpty()) {
+                ErrorState(
+                    message = stringResource(state.errorMessageRes ?: R.string.state_error_generic),
+                    onRetry = { viewModel.refresh() }
                 )
+            } else {
+                // Header Top Bar
+                Column(modifier = Modifier.fillMaxSize()) {
+                    HomeHeader(
+                        onRefresh = { viewModel.refresh() },
+                        onNavigateToProfiles = onNavigateToProfiles,
+                        isLandscape = isLandscape
+                    )
 
-                if (isLandscape) {
+                    if (isLandscape) {
                     // DUAL COLUMN RESPONSIVE LAYOUT FOR LANDSCAPE (Broadcasting Dashboard)
                     Row(
                         modifier = Modifier
@@ -217,6 +235,15 @@ fun HomeScreen(
                                     athletes = athletes,
                                     pulseScale = pulseScale,
                                     onAthleteClick = onNavigateToPlayerDetail
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                FavoriteShortcutsRow(
+                                    favoriteClubs = favoriteClubs,
+                                    favoritePlayers = favoritePlayers,
+                                    allClubs = allClubs,
+                                    allPersons = allPersons,
+                                    onClubClick = onNavigateToClub,
+                                    onPlayerClick = onNavigateToPlayerDetail
                                 )
                                 Spacer(modifier = Modifier.height(14.dp))
                             }
@@ -343,6 +370,18 @@ fun HomeScreen(
                             )
                         }
 
+                        // Favorite Shortcuts (Pin / Bookmark)
+                        item {
+                            FavoriteShortcutsRow(
+                                favoriteClubs = favoriteClubs,
+                                favoritePlayers = favoritePlayers,
+                                allClubs = allClubs,
+                                allPersons = allPersons,
+                                onClubClick = onNavigateToClub,
+                                onPlayerClick = onNavigateToPlayerDetail
+                            )
+                        }
+
                         // Quick Action Bar: Jelajahi Pemain, Pelatih & Klub
                         item {
                             QuickExploreCard(
@@ -452,6 +491,7 @@ fun HomeScreen(
             }
         }
     }
+}
 }
 
 @Composable
@@ -707,6 +747,115 @@ private fun SectionHeaderWithAction(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
+        }
+    }
+}
+
+@Composable
+private fun FavoriteShortcutsRow(
+    favoriteClubs: Set<String>,
+    favoritePlayers: Set<String>,
+    allClubs: List<com.abryan.sportgrid.domain.model.ClubBio>,
+    allPersons: List<com.abryan.sportgrid.domain.model.PersonProfile>,
+    onClubClick: (Int) -> Unit,
+    onPlayerClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (favoriteClubs.isEmpty() && favoritePlayers.isEmpty()) return
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = null,
+                tint = VoltGreen,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = "PIN & FAVORIT SAYA",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp,
+                    color = VoltGreen
+                )
+            )
+        }
+
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(bottom = 10.dp)
+        ) {
+            // Favorite Clubs
+            items(favoriteClubs.toList()) { clubIdStr ->
+                val clubId = clubIdStr.toIntOrNull() ?: 0
+                val club = allClubs.find { it.id == clubId }
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, VoltGreen.copy(alpha = 0.5f)),
+                    modifier = Modifier.clickable { onClubClick(clubId) }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        if (!club?.logo.isNullOrBlank()) {
+                            AsyncImage(
+                                model = club!!.logo,
+                                contentDescription = club.name,
+                                modifier = Modifier
+                                    .size(22.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Fit
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                        }
+                        Text(
+                            text = club?.name ?: "Klub #$clubId",
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
+
+            // Favorite Players
+            items(favoritePlayers.toList()) { playerId ->
+                val person = allPersons.find { it.id == playerId }
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
+                    modifier = Modifier.clickable { onPlayerClick(playerId) }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        if (!person?.photo.isNullOrBlank()) {
+                            AsyncImage(
+                                model = person!!.photo,
+                                contentDescription = person.name,
+                                modifier = Modifier
+                                    .size(22.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                        }
+                        Text(
+                            text = person?.name ?: "Atlet #$playerId",
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
         }
     }
 }

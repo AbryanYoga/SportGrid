@@ -9,6 +9,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,10 +30,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.CompareArrows
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Sports
+import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material.icons.filled.Stadium
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -51,10 +54,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,6 +75,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.abryan.sportgrid.SportGridApp
+import com.abryan.sportgrid.domain.model.H2HMatch
+import com.abryan.sportgrid.domain.model.H2HSummary
 import com.abryan.sportgrid.domain.model.LineupPlayer
 import com.abryan.sportgrid.domain.model.MatchDetailData
 import com.abryan.sportgrid.domain.model.MatchEvent
@@ -77,6 +84,7 @@ import com.abryan.sportgrid.domain.model.MatchStatItem
 import com.abryan.sportgrid.domain.model.TeamTactics
 import com.abryan.sportgrid.ui.components.ErrorState
 import com.abryan.sportgrid.ui.theme.VoltGreen
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,12 +93,18 @@ fun MatchDetailScreen(
     onBack: () -> Unit,
     onNavigateToCoach: (String) -> Unit = {},
     onNavigateToClub: (Int) -> Unit = {},
+    onNavigateToPlayer: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val app = LocalContext.current.applicationContext as SportGridApp
+    val coroutineScope = rememberCoroutineScope()
     var detailData by remember { mutableStateOf<MatchDetailData?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var selectedTab by remember { mutableIntStateOf(0) }
+
+    // Persistent Favorite Status
+    val favoriteMatches by app.container.favoritesDataStore.favoriteMatches.collectAsState(initial = emptySet())
+    val isFavorite = favoriteMatches.contains(matchId.toString())
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -116,6 +130,19 @@ fun MatchDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        coroutineScope.launch {
+                            app.container.favoritesDataStore.toggleFavoriteMatch(matchId)
+                        }
+                    }) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
+                            contentDescription = "Favorit",
+                            tint = if (isFavorite) VoltGreen else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -178,7 +205,7 @@ fun MatchDetailScreen(
                             }
                         }
 
-                        // Right Column: Tab Content (Pitch Formation, Statistics, Timeline)
+                        // Right Column: Tab Content
                         Column(
                             modifier = Modifier
                                 .weight(1.2f)
@@ -200,28 +227,47 @@ fun MatchDetailScreen(
                                                 homeTeam = data.match.homeTeamName,
                                                 awayTeam = data.match.awayTeamName,
                                                 homeTactics = data.homeTactics,
-                                                awayTactics = data.awayTactics
+                                                awayTactics = data.awayTactics,
+                                                onPlayerClick = { player ->
+                                                    val playerId = mapPlayerNameToId(player.name)
+                                                    onNavigateToPlayer(playerId)
+                                                }
                                             )
                                             Spacer(modifier = Modifier.height(14.dp))
                                             StartingLineupCard(
                                                 teamName = data.match.homeTeamName,
                                                 tactics = data.homeTactics,
-                                                isHome = true
+                                                isHome = true,
+                                                onPlayerClick = { onNavigateToPlayer(mapPlayerNameToId(it.name)) }
                                             )
                                             Spacer(modifier = Modifier.height(10.dp))
                                             StartingLineupCard(
                                                 teamName = data.match.awayTeamName,
                                                 tactics = data.awayTactics,
-                                                isHome = false
+                                                isHome = false,
+                                                onPlayerClick = { onNavigateToPlayer(mapPlayerNameToId(it.name)) }
                                             )
                                         }
                                     }
                                     1 -> {
                                         item {
+                                            MatchPressureMomentumCard(momentumPoints = data.momentumPoints)
+                                            Spacer(modifier = Modifier.height(12.dp))
                                             StatisticsTabContent(statistics = data.statistics)
                                         }
                                     }
                                     2 -> {
+                                        item {
+                                            data.h2hSummary?.let { h2h ->
+                                                HeadToHeadTabContent(
+                                                    homeTeam = data.match.homeTeamName,
+                                                    awayTeam = data.match.awayTeamName,
+                                                    h2h = h2h
+                                                )
+                                            }
+                                        }
+                                    }
+                                    3 -> {
                                         item {
                                             TimelineTabContent(events = data.events)
                                         }
@@ -265,30 +311,50 @@ fun MatchDetailScreen(
                                         homeTeam = data.match.homeTeamName,
                                         awayTeam = data.match.awayTeamName,
                                         homeTactics = data.homeTactics,
-                                        awayTactics = data.awayTactics
+                                        awayTactics = data.awayTactics,
+                                        onPlayerClick = { player ->
+                                            val playerId = mapPlayerNameToId(player.name)
+                                            onNavigateToPlayer(playerId)
+                                        }
                                     )
                                 }
                                 item {
                                     StartingLineupCard(
                                         teamName = data.match.homeTeamName,
                                         tactics = data.homeTactics,
-                                        isHome = true
+                                        isHome = true,
+                                        onPlayerClick = { onNavigateToPlayer(mapPlayerNameToId(it.name)) }
                                     )
                                 }
                                 item {
                                     StartingLineupCard(
                                         teamName = data.match.awayTeamName,
                                         tactics = data.awayTactics,
-                                        isHome = false
+                                        isHome = false,
+                                        onPlayerClick = { onNavigateToPlayer(mapPlayerNameToId(it.name)) }
                                     )
                                 }
                             }
                             1 -> {
                                 item {
+                                    MatchPressureMomentumCard(momentumPoints = data.momentumPoints)
+                                }
+                                item {
                                     StatisticsTabContent(statistics = data.statistics)
                                 }
                             }
                             2 -> {
+                                item {
+                                    data.h2hSummary?.let { h2h ->
+                                        HeadToHeadTabContent(
+                                            homeTeam = data.match.homeTeamName,
+                                            awayTeam = data.match.awayTeamName,
+                                            h2h = h2h
+                                        )
+                                    }
+                                }
+                            }
+                            3 -> {
                                 item {
                                     TimelineTabContent(events = data.events)
                                 }
@@ -298,6 +364,21 @@ fun MatchDetailScreen(
                 }
             }
         }
+    }
+}
+
+private fun mapPlayerNameToId(playerName: String): String {
+    return when {
+        playerName.contains("Mbappé", ignoreCase = true) -> "f_p1"
+        playerName.contains("Bellingham", ignoreCase = true) -> "f_p2"
+        playerName.contains("Haaland", ignoreCase = true) -> "f_p3"
+        playerName.contains("Messi", ignoreCase = true) -> "f_p4"
+        playerName.contains("Ronaldo", ignoreCase = true) -> "f_p5"
+        playerName.contains("Yamal", ignoreCase = true) -> "f_p6"
+        playerName.contains("Curry", ignoreCase = true) -> "b_p1"
+        playerName.contains("James", ignoreCase = true) -> "b_p2"
+        playerName.contains("Ohtani", ignoreCase = true) -> "bb_p1"
+        else -> "f_p1"
     }
 }
 
@@ -557,8 +638,9 @@ private fun DetailTabsHeader(
         divider = {}
     ) {
         listOf(
-            "TAKTIK & FORMASI",
+            "TAKTIK",
             "STATISTIK",
+            "HEAD-TO-HEAD",
             "LINIMASA"
         ).forEachIndexed { index, title ->
             Tab(
@@ -569,7 +651,7 @@ private fun DetailTabsHeader(
                         text = title,
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Medium,
-                            fontSize = 11.sp,
+                            fontSize = 10.sp,
                             color = if (selectedTab == index) VoltGreen else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
@@ -706,22 +788,23 @@ private fun TacticalPitchView(
     homeTeam: String,
     awayTeam: String,
     homeTactics: TeamTactics,
-    awayTactics: TeamTactics
+    awayTactics: TeamTactics,
+    onPlayerClick: (LineupPlayer) -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1B2E1E)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF132B16)),
         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF2E5D36)),
         modifier = Modifier
             .fillMaxWidth()
-            .height(260.dp)
+            .height(340.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(12.dp)
         ) {
-            // Pitch markings
+            // Field markings background
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween
@@ -758,69 +841,60 @@ private fun TacticalPitchView(
                 modifier = Modifier
                     .size(70.dp)
                     .align(Alignment.Center)
-                    .border(1.dp, Color.White.copy(alpha = 0.3f), CircleShape)
+                    .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape)
             )
 
-            // Formations text overlay
+            // INTERACTIVE PLAYER FORMATION NODES
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Away Formation
-                Row(
+                // Top Half: Away Team Nodes (Blue Theme)
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .weight(1f),
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    // Away Attackers
+                    PitchPlayerRow(players = awayTactics.starting11.takeLast(3), isHome = false, onPlayerClick = onPlayerClick)
+                    // Away Midfielders
+                    PitchPlayerRow(players = awayTactics.starting11.drop(4).take(3), isHome = false, onPlayerClick = onPlayerClick)
+                    // Away Defenders
+                    PitchPlayerRow(players = awayTactics.starting11.drop(1).take(3), isHome = false, onPlayerClick = onPlayerClick)
+                }
+
+                // Middle Pitch Label
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 8.dp, vertical = 2.dp)
                 ) {
                     Text(
-                        text = "$awayTeam (${awayTactics.formation})",
+                        text = "SENTUH PEMAIN UNTUK BIODATA",
                         style = MaterialTheme.typography.labelSmall.copy(
-                            color = Color(0xFF82B1FF),
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                    Text(
-                        text = "TIM TAMU",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            color = Color.White.copy(alpha = 0.6f),
-                            fontSize = 9.sp
+                            color = VoltGreen,
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
                         )
                     )
                 }
 
-                // Center Indicator
-                Text(
-                    text = "PITCH FORMATION BOARD",
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        color = Color.White.copy(alpha = 0.4f),
-                        fontSize = 9.sp,
-                        letterSpacing = 2.sp
-                    ),
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-
-                // Home Formation
-                Row(
+                // Bottom Half: Home Team Nodes (Volt Green Theme)
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .weight(1f),
+                    verticalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text(
-                        text = "$homeTeam (${homeTactics.formation})",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            color = VoltGreen,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                    Text(
-                        text = "TUAN RUMAH",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            color = Color.White.copy(alpha = 0.6f),
-                            fontSize = 9.sp
-                        )
-                    )
+                    // Home Defenders
+                    PitchPlayerRow(players = homeTactics.starting11.drop(1).take(3), isHome = true, onPlayerClick = onPlayerClick)
+                    // Home Midfielders
+                    PitchPlayerRow(players = homeTactics.starting11.drop(4).take(3), isHome = true, onPlayerClick = onPlayerClick)
+                    // Home Attackers
+                    PitchPlayerRow(players = homeTactics.starting11.takeLast(3), isHome = true, onPlayerClick = onPlayerClick)
                 }
             }
         }
@@ -828,10 +902,253 @@ private fun TacticalPitchView(
 }
 
 @Composable
+private fun PitchPlayerRow(
+    players: List<LineupPlayer>,
+    isHome: Boolean,
+    onPlayerClick: (LineupPlayer) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        players.forEach { player ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable { onPlayerClick(player) }
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(26.dp)
+                        .clip(CircleShape)
+                        .background(if (isHome) VoltGreen else Color(0xFF2979FF))
+                        .border(1.5.dp, Color.White, CircleShape)
+                ) {
+                    Text(
+                        text = "${player.number}",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Black,
+                            fontSize = 11.sp,
+                            color = if (isHome) Color.Black else Color.White
+                        )
+                    )
+                }
+                Text(
+                    text = player.name.split(" ").lastOrNull() ?: player.name,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = Color.White,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MatchPressureMomentumCard(momentumPoints: List<Float>) {
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    Icons.Default.ShowChart,
+                    contentDescription = null,
+                    tint = VoltGreen,
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = "MOMENTUM TEKANAN SERANGAN (0' - 90')",
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Bar chart representing attacking pressure swings
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                momentumPoints.forEach { point ->
+                    val isHomeDominant = point >= 0
+                    val barHeightFraction = (kotlin.math.abs(point)).coerceIn(0.15f, 1.0f)
+                    Box(
+                        modifier = Modifier
+                            .width(10.dp)
+                            .fillMaxHeight(barHeightFraction)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(if (isHomeDominant) VoltGreen else Color(0xFF2979FF))
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(VoltGreen))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Tekanan Tuan Rumah", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp))
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF2979FF)))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Tekanan Tim Tamu", style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HeadToHeadTabContent(
+    homeTeam: String,
+    awayTeam: String,
+    h2h: H2HSummary
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // Win Probability Card
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Default.CompareArrows, contentDescription = null, tint = VoltGreen, modifier = Modifier.size(20.dp))
+                    Text(
+                        text = "PELUANG KEMENANGAN (WIN PROBABILITY)",
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Probability % labels
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("$homeTeam ${h2h.winProbabilityHome}%", style = MaterialTheme.typography.labelMedium.copy(color = VoltGreen, fontWeight = FontWeight.Bold))
+                    Text("Seri ${h2h.winProbabilityDraw}%", style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
+                    Text("${h2h.winProbabilityAway}% $awayTeam", style = MaterialTheme.typography.labelMedium.copy(color = Color(0xFF2979FF), fontWeight = FontWeight.Bold))
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Triple Segmented Bar
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(10.dp)
+                        .clip(RoundedCornerShape(5.dp))
+                ) {
+                    Box(modifier = Modifier.fillMaxHeight().weight(h2h.winProbabilityHome.toFloat()).background(VoltGreen))
+                    Box(modifier = Modifier.fillMaxHeight().weight(h2h.winProbabilityDraw.toFloat()).background(Color.Gray.copy(alpha = 0.5f)))
+                    Box(modifier = Modifier.fillMaxHeight().weight(h2h.winProbabilityAway.toFloat()).background(Color(0xFF2979FF)))
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Stats summary
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                    H2HMetricItem(label = "Menang Home", value = "${h2h.homeWins}", color = VoltGreen)
+                    H2HMetricItem(label = "Hasil Seri", value = "${h2h.draws}", color = MaterialTheme.colorScheme.onSurface)
+                    H2HMetricItem(label = "Menang Away", value = "${h2h.awayWins}", color = Color(0xFF2979FF))
+                }
+            }
+        }
+
+        // Recent 5 Encounters
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Text(
+                    text = "5 PERTEMUAN TERAKHIR",
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp, color = VoltGreen)
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                h2h.recentMatches.forEach { match ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "${match.homeTeam} vs ${match.awayTeam}",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = "${match.date} • ${match.competition}",
+                                style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "${match.homeScore} - ${match.awayScore}",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Black, color = VoltGreen)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun H2HMetricItem(label: String, value: String, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = value, style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black, color = color))
+        Text(text = label, style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp))
+    }
+}
+
+@Composable
 private fun StartingLineupCard(
     teamName: String,
     tactics: TeamTactics,
-    isHome: Boolean
+    isHome: Boolean,
+    onPlayerClick: (LineupPlayer) -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(20.dp),
@@ -867,7 +1184,8 @@ private fun StartingLineupCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 3.dp),
+                        .clickable { onPlayerClick(player) }
+                        .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
