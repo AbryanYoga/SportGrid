@@ -37,12 +37,28 @@ fun SportGridAppShell(
                 SportGridBottomBar(
                     currentRoute = currentRoute,
                     onNavigate = { screen ->
-                        navController.navigate(screen.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                        if (screen.route == Screen.Home.route) {
+                            if (currentRoute != Screen.Home.route) {
+                                val popped = navController.popBackStack(Screen.Home.route, inclusive = false)
+                                if (!popped) {
+                                    navController.navigate(Screen.Home.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            inclusive = false
+                                        }
+                                        launchSingleTop = true
+                                    }
+                                }
                             }
-                            launchSingleTop = true
-                            restoreState = true
+                        } else {
+                            if (currentRoute != screen.route) {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
                         }
                     }
                 )
@@ -57,8 +73,20 @@ fun SportGridAppShell(
         ) {
             composable(Screen.Home.route) {
                 HomeScreen(
-                    onNavigateToLeagues = { navController.navigate(Screen.Leagues.route) },
-                    onNavigateToTransfers = { navController.navigate(Screen.Transfers.route) },
+                    onNavigateToLeagues = {
+                        navController.navigate(Screen.Leagues.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onNavigateToTransfers = {
+                        navController.navigate(Screen.Transfers.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
                     onNavigateToMatchDetail = { /* Handled in fixtures */ }
                 )
             }
