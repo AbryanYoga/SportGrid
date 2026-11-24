@@ -1,6 +1,10 @@
 package com.abryan.sportgrid.data.remote.api
 
-import kotlinx.serialization.json.JsonObject
+import com.abryan.sportgrid.data.remote.dto.FootballFixtureItemDto
+import com.abryan.sportgrid.data.remote.dto.FootballLeagueItemDto
+import com.abryan.sportgrid.data.remote.dto.FootballStandingItemDto
+import com.abryan.sportgrid.data.remote.dto.FootballTransferItemDto
+import com.abryan.sportgrid.data.remote.dto.TeamDetailDto
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -11,7 +15,7 @@ interface FootballApiService {
         @Query("season") season: Int? = null,
         @Query("current") current: String? = null,
         @Query("search") search: String? = null
-    ): ApiResponse<JsonObject>
+    ): ApiResponse<FootballLeagueItemDto>
 
     @GET("fixtures")
     suspend fun getFixtures(
@@ -19,23 +23,23 @@ interface FootballApiService {
         @Query("date") date: String? = null,
         @Query("league") league: Int? = null,
         @Query("season") season: Int? = null
-    ): ApiResponse<JsonObject>
+    ): ApiResponse<FootballFixtureItemDto>
 
     @GET("standings")
     suspend fun getStandings(
         @Query("league") league: Int,
         @Query("season") season: Int
-    ): ApiResponse<JsonObject>
+    ): ApiResponse<FootballStandingItemDto>
 
     @GET("teams")
     suspend fun getTeams(
         @Query("league") league: Int? = null,
         @Query("season") season: Int? = null,
         @Query("search") search: String? = null
-    ): ApiResponse<JsonObject>
+    ): ApiResponse<TeamDetailDto>
 
     @GET("transfers")
     suspend fun getTransfers(
         @Query("team") team: Int
-    ): ApiResponse<JsonObject>
+    ): ApiResponse<FootballTransferItemDto>
 }
