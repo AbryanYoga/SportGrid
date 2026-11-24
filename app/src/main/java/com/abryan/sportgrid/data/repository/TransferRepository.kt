@@ -45,12 +45,13 @@ class TransferRepository {
         try {
             val response = ApiClientFactory.getFootballApi().getTransfers(team = teamId)
             val transfers = response.response.flatMap { it.toDomainList() }
+                .sortedByDescending { it.date }
             cache.put(transfers)
             Result.success(transfers)
         } catch (e: Exception) {
             val fallback = cache.getEvenIfExpired()
             if (fallback != null && fallback.isNotEmpty()) Result.success(fallback)
-            else Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackTransfers())
+            else Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackTransfers().sortedByDescending { it.date })
         }
     }
 

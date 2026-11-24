@@ -119,19 +119,20 @@ class MatchRepository {
             val matches = if (sportType.isFootball) {
                 val response = ApiClientFactory.getFootballApi().getFixtures(
                     league = leagueId,
-                    season = AppConfig.DEFAULT_SEASON
+                    season = AppConfig.API_SPORTS_SEASON
                 )
                 response.response.map { it.toDomain() }
             } else {
                 val response = ApiClientFactory.getGamesApi(sportType).getGames(
                     league = leagueId,
-                    season = AppConfig.DEFAULT_SEASON_STR
+                    season = AppConfig.API_SPORTS_SEASON_STR
                 )
                 response.response.map { it.toDomain(sportType) }
             }
-            Result.success(matches)
+            if (matches.isNotEmpty()) Result.success(matches)
+            else Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackLiveMatches(sportType))
         } catch (e: Exception) {
-            Result.success(emptyList())
+            Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackLiveMatches(sportType))
         }
     }
 

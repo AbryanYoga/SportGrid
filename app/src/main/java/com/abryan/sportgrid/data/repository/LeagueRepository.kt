@@ -29,24 +29,24 @@ class LeagueRepository {
 
         try {
             val leagues = if (sportType.isFootball) {
+                // Jangan paksa parameter season agar API-Sports mengembalikan seluruh liga aktif tanpa batasan paket gratis
                 val response = ApiClientFactory.getFootballApi().getLeagues(
-                    season = AppConfig.DEFAULT_SEASON,
                     current = "true"
                 )
                 if (response.hasErrors) {
                     val fallback = cache.getEvenIfExpired()
                     if (fallback != null) return@withContext Result.success(fallback)
-                    return@withContext Result.failure(Exception("API Error: ${response.errors}"))
+                    return@withContext Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackLeagues(sportType))
                 }
                 response.response.map { it.toDomain() }
             } else {
                 val response = ApiClientFactory.getGamesApi(sportType).getLeagues(
-                    season = AppConfig.DEFAULT_SEASON_STR
+                    season = AppConfig.API_SPORTS_SEASON_STR
                 )
                 if (response.hasErrors) {
                     val fallback = cache.getEvenIfExpired()
                     if (fallback != null) return@withContext Result.success(fallback)
-                    return@withContext Result.failure(Exception("API Error: ${response.errors}"))
+                    return@withContext Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackLeagues(sportType))
                 }
                 response.response.map { it.toDomain(sportType) }
             }
@@ -73,7 +73,9 @@ class LeagueRepository {
             }
             Result.success(leagues)
         } catch (e: Exception) {
-            Result.failure(e)
+            val localMatches = com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackLeagues(sportType)
+                .filter { it.name.contains(query, ignoreCase = true) }
+            Result.success(localMatches)
         }
     }
 
@@ -91,21 +93,27 @@ class LeagueRepository {
             val standings = if (sportType.isFootball) {
                 val response = ApiClientFactory.getFootballApi().getStandings(
                     league = leagueId,
-                    season = AppConfig.DEFAULT_SEASON
+                    season = AppConfig.API_SPORTS_SEASON
                 )
                 response.response.firstOrNull()?.toDomainList() ?: emptyList()
             } else {
                 val response = ApiClientFactory.getGamesApi(sportType).getStandings(
                     league = leagueId,
-                    season = AppConfig.DEFAULT_SEASON_STR
+                    season = AppConfig.API_SPORTS_SEASON_STR
                 )
                 response.response.map { it.toDomain() }
             }
-            cache.put(standings)
-            Result.success(standings)
+
+            if (standings.isNotEmpty()) {
+                cache.put(standings)
+                Result.success(standings)
+            } else {
+                Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackStandings())
+            }
         } catch (e: Exception) {
             val fallback = cache.getEvenIfExpired()
-            if (fallback != null) Result.success(fallback) else Result.failure(e)
+            if (fallback != null && fallback.isNotEmpty()) Result.success(fallback)
+            else Result.success(com.abryan.sportgrid.data.local.DemoFallbackData.getFallbackStandings())
         }
     }
 }

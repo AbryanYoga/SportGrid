@@ -1,14 +1,13 @@
 package com.abryan.sportgrid.util
 
 object AppConfig {
-    val DEFAULT_SEASON: Int
-        get() = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+    // API-Sports Free tier hanya mengizinkan musim 2022 hingga 2024 ("Free plans do not have access to this season, try from 2022 to 2024.")
+    const val API_SPORTS_SEASON = 2024
+    const val API_SPORTS_SEASON_STR = "2024-2025"
 
-    val DEFAULT_SEASON_STR: String
-        get() {
-            val year = DEFAULT_SEASON
-            return "$year-${year + 1}"
-        }
+    const val DEFAULT_SEASON = 2024
+    const val DEFAULT_SEASON_STR = "2024-2025"
+
     const val API_TIMEOUT_SECONDS = 30L
 
     // Cache TTL durations
